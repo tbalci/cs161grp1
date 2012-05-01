@@ -117,5 +117,18 @@ namespace VirtualSifu
 
         }
 
+        private void TiltSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            TiltAngle.Content = (int)TiltSlider.Value;
+        }
+
+        private void setTilt_Click(object sender, RoutedEventArgs e)
+        {
+            if (kinectSensorChooser1.Kinect != null && kinectSensorChooser1.Kinect.IsRunning)
+            {
+                kinectSensorChooser1.Kinect.ElevationAngle = (int)TiltSlider.Value;
+            }
+        }
+
     }
 }

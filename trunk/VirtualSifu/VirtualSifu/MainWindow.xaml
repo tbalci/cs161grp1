@@ -7,5 +7,9 @@
         <Button Content="Record" Height="23" HorizontalAlignment="Left" Margin="12,22,0,0" Name="Record" VerticalAlignment="Top" Width="89" Click="button1_Click" />
         <Image Height="240" HorizontalAlignment="Left" Margin="49,174,0,0" Name="masterView" Stretch="Fill" VerticalAlignment="Top" Width="320" />
         <Button Content="Stop Recording" Height="23" HorizontalAlignment="Left" Margin="12,51,0,0" Name="stop" VerticalAlignment="Top" Width="89" Click="stop_Click" />
+        <Button Content="Set Tilt" Height="23" HorizontalAlignment="Left" Margin="905,112,0,0" Name="setTilt" VerticalAlignment="Top" Width="75" Click="setTilt_Click" />
+        <my:KinectColorViewer HorizontalAlignment="Left" Margin="639,174,0,0" Name="kinectColorViewer1" VerticalAlignment="Top" Width="320" Height="240" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
+        <Slider Height="94" HorizontalAlignment="Left" Margin="935,12,0,0" Name="TiltSlider" VerticalAlignment="Top" Width="24" Orientation="Vertical" Maximum="27" Minimum="-27" ValueChanged="TiltSlider_ValueChanged" />
+        <Label Content="0" Height="36" HorizontalAlignment="Left" Margin="957,43,0,0" Name="TiltAngle" VerticalAlignment="Top" FontWeight="Bold" Width="45" FontSize="18" />
     </Grid>
 </Window>
