@@ -1,0 +1,11 @@
+﻿<Window x:Class="VirtualSifu.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="720" Width="1024" Loaded="Window_Loaded" Closing="Window_Closing" xmlns:my="clr-namespace:Microsoft.Samples.Kinect.WpfViewers;assembly=Microsoft.Samples.Kinect.WpfViewers">
+    <Grid>
+        <my:KinectSensorChooser HorizontalAlignment="Left" Margin="339,208,0,0" Name="kinectSensorChooser1" VerticalAlignment="Top" Width="328" />
+        <Button Content="Record" Height="23" HorizontalAlignment="Left" Margin="12,22,0,0" Name="Record" VerticalAlignment="Top" Width="89" Click="button1_Click" />
+        <Image Height="240" HorizontalAlignment="Left" Margin="49,174,0,0" Name="masterView" Stretch="Fill" VerticalAlignment="Top" Width="320" />
+        <Button Content="Stop Recording" Height="23" HorizontalAlignment="Left" Margin="12,51,0,0" Name="stop" VerticalAlignment="Top" Width="89" Click="stop_Click" />
+    </Grid>
+</Window>
