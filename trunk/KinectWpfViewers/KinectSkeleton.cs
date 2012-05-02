@@ -83,7 +83,7 @@ namespace Microsoft.Samples.Kinect.WpfViewers
             get { return (bool)GetValue(ShowCenterProperty); }
             set { SetValue(ShowCenterProperty, value); }
         }
-        //test
+        //test2
         /// <summary>
         /// This method should be called every skeleton frame.  It will force the properties to update and 
         /// trigger the control to render.
