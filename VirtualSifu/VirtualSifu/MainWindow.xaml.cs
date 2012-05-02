@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 using Microsoft.Kinect;
 
 namespace VirtualSifu
@@ -24,7 +25,8 @@ namespace VirtualSifu
     {
         bool recordSet = false;
         ArrayList recordBuffer = new ArrayList();
-        
+        StreamWriter writer;
+        int frameNumber = 0;
 
         public MainWindow()
         {
@@ -70,18 +72,50 @@ namespace VirtualSifu
                     {
                         return;
                     }
-
+                    frameNumber++;
                     byte[] pixels = new byte[colorFrame.PixelDataLength];
+                    //for (int i = 0; i < pixels.Length; i++)
+                    //{
+                    //    writer.Write(pixels[i]);
+                    //    writer.Write(' ');
+                    //}
+                    //writer.WriteLine("end");
 
-                    recordBuffer.Add(pixels);
                     colorFrame.CopyPixelDataTo(pixels);
                     
                     int stride = colorFrame.Width * 4;
                     masterView.Source = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                }
+                using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
+                {
+                    //TimeSpan timeSpan = DateTime.Now.Subtract(referenceTime);
+                    //String referenceTime = DateTime.Now;
+                    writer.Write(frameNumber);
+                    writer.Write(skeletonFrame.FloorClipPlane);
+                    //writer.Write((int)skeletonFrame.Quality);
+                    //writer.Write(skeletonFrame.NormalToGravity);
 
+                    writer.Write(skeletonFrame.SkeletonArrayLength);
+                    Skeleton[] data = new Skeleton[skeletonFrame.SkeletonArrayLength];
+                    skeletonFrame.CopySkeletonDataTo(data);
+                    foreach (Skeleton skeleton in data)
+                    {
+                        writer.Write((int)skeleton.TrackingState);
+                        writer.Write(skeleton.Position);
+                        writer.Write(skeleton.TrackingId);
+                        writer.Write(skeleton.TrackingState);
+                        writer.Write(skeleton.Joints);
+                        writer.Write((int)skeleton.ClippedEdges);
 
-
-
+                        writer.Write(skeleton.Joints.Count);
+                        foreach (Joint joint in skeleton.Joints)
+                        {
+                            writer.Write((int)joint.JointType);
+                            writer.Write((int)joint.TrackingState);
+                            writer.Write(joint.Position);
+                        }
+                    }
+                    
                 }
             }
         }
@@ -102,19 +136,15 @@ namespace VirtualSifu
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
+            writer = new StreamWriter(FileText.Text);
             recordSet = true;
         }
 
         private void stop_Click(object sender, RoutedEventArgs e)
         {
             recordSet = false;
-            DataSet d = new DataSet();
-            DataTable t = new DataTable();
-            d.Tables.Add(t);
-            t.Columns.Add(new DataColumn("Video", typeof(ArrayList)));
-            t.Rows.Add(recordBuffer);
-            d.WriteXml("RecordedVideo.xml");
 
+            writer.Close();
         }
 
         private void TiltSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
