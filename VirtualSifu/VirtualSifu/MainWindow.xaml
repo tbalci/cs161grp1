@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="600" Width="1024" Loaded="Window_Loaded" Closing="Window_Closing" xmlns:my="clr-namespace:Microsoft.Samples.Kinect.WpfViewers;assembly=Microsoft.Samples.Kinect.WpfViewers">
     <Grid>
-        <my:KinectSensorChooser HorizontalAlignment="Left" Margin="-398,368,0,0" Name="kinectSensorChooser1" VerticalAlignment="Top" Width="328" />
+        <my:KinectSensorChooser HorizontalAlignment="Left" Margin="343,226,0,0" Name="kinectSensorChooser1" VerticalAlignment="Top" Width="328" />
         <Image Height="240" HorizontalAlignment="Left" Margin="46,214,0,0" Name="masterView" Stretch="Fill" VerticalAlignment="Top" Width="320" />
         <Button Content="Set Tilt" Height="23" HorizontalAlignment="Left" Margin="776,526,0,0" Name="setTilt" VerticalAlignment="Top" Width="75" Click="setTilt_Click" />
         <my:KinectColorViewer HorizontalAlignment="Left" Margin="639,214,0,0" Name="kinectColorViewer1" VerticalAlignment="Top" Width="320" Height="240" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
