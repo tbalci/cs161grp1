@@ -90,30 +90,87 @@ namespace VirtualSifu
                 {
                     //TimeSpan timeSpan = DateTime.Now.Subtract(referenceTime);
                     //String referenceTime = DateTime.Now;
-                    writer.Write(frameNumber);
-                    writer.Write(skeletonFrame.FloorClipPlane);
+                   // writer.Write("Frame Number: " + frameNumber);
+                    //writer.Write("\r\nSkeleton Frame Floor Clip Plane: " + skeletonFrame.FloorClipPlane);
                     //writer.Write((int)skeletonFrame.Quality);
                     //writer.Write(skeletonFrame.NormalToGravity);
 
-                    writer.Write(skeletonFrame.SkeletonArrayLength);
+                   // writer.Write("\r\nSkeleton Frame Array Length: " + skeletonFrame.SkeletonArrayLength);
                     Skeleton[] data = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     skeletonFrame.CopySkeletonDataTo(data);
+
+                    
+
+
                     foreach (Skeleton skeleton in data)
                     {
-                        writer.Write((int)skeleton.TrackingState);
-                        writer.Write(skeleton.Position);
-                        writer.Write(skeleton.TrackingId);
-                        writer.Write(skeleton.TrackingState);
-                        writer.Write(skeleton.Joints);
-                        writer.Write((int)skeleton.ClippedEdges);
 
-                        writer.Write(skeleton.Joints.Count);
-                        foreach (Joint joint in skeleton.Joints)
+                        if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                         {
-                            writer.Write((int)joint.JointType);
-                            writer.Write((int)joint.TrackingState);
-                            writer.Write(joint.Position);
+                            SkeletonPoint point = skeleton.Joints[JointType.Head].Position;
+                            writer.Write("Head: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.ShoulderCenter].Position;
+                            writer.Write("ShoulderCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.ShoulderRight].Position;
+                            writer.Write("ShoulderRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.ElbowRight].Position;
+                            writer.Write("ElbowRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.WristRight].Position;
+                            writer.Write("WristRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.HandRight].Position;
+                            writer.Write("HandRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.ShoulderLeft].Position;
+                            writer.Write("ShoulderLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.ElbowLeft].Position;
+                            writer.Write("ElbowLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.WristLeft].Position;
+                            writer.Write("WristLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.HandLeft].Position;
+                            writer.Write("HandLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.Spine].Position;
+                            writer.Write("Spine: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.HipCenter].Position;
+                            writer.Write("HipCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.HipRight].Position;
+                            writer.Write("HipRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.KneeRight].Position;
+                            writer.Write("KneeRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.AnkleRight].Position;
+                            writer.Write("AnkleRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.FootRight].Position;
+                            writer.Write("FootRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.HipLeft].Position;
+                            writer.Write("HipLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.KneeLeft].Position;
+                            writer.Write("KneeLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.AnkleLeft].Position;
+                            writer.Write("AnkleLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            point = skeleton.Joints[JointType.FootLeft].Position;
+                            writer.Write("FootLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                            writer.Write("\r\n");
+
+
+
+
+
                         }
+                        //writer.Write("\r\nTracking State: " + (int)skeleton.TrackingState);
+                        //writer.Write(" Skeleton Position: " + skeleton.Position);
+                        //writer.Write(" Skeleton Tracking ID: " + skeleton.TrackingId);
+                        //writer.Write(" Skeleton Tracking State: " + skeleton.TrackingState);
+                        //writer.Write(" Skeleton Joints: " + skeleton.Joints);
+                        //writer.Write(" Skeleton ClippedEdges: " + (int)skeleton.ClippedEdges);
+                        //writer.Write("\r\n");
+                        //writer.Write(skeleton.Joints[JointType.Head].Position);
+                        //writer.Write(skeleton.Joints.Count);
+                        //foreach (Joint joint in skeleton.Joints)
+                       // {
+                            //writer.Write("Joint Type: " + (int)joint.JointType);
+                            //writer.Write(" Joint Tracking State: " + (int)joint.TrackingState);
+                            //writer.Write(" Joint Position: " + joint.Position);
+                            //Console.WriteLine(joint.Position);
+                            //writer.Write("\r\n");
+                        //}
                     }
                     
                 }
@@ -136,7 +193,7 @@ namespace VirtualSifu
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            writer = new StreamWriter(FileText.Text);
+            writer = new StreamWriter(FileText.Text + ".txt");
             recordSet = true;
         }
 
@@ -158,6 +215,51 @@ namespace VirtualSifu
             {
                 kinectSensorChooser1.Kinect.ElevationAngle = (int)TiltSlider.Value;
             }
+        }
+
+        private void image2_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
+
+            if (!recordSet)
+            {
+                // begin writing
+                writer = new StreamWriter(FileText.Text + ".txt");
+
+                // swap image to stop.png
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri("/VirtualSifu;component/Images/stop.png", UriKind.Relative);
+                bitmap.EndInit();
+                image2.Stretch = Stretch.Fill;
+                image2.Source = bitmap;
+
+                // set state
+                recordSet = true;
+            }
+            else
+            {
+                // stop writing
+                writer.Close();
+
+                // swap image to play.png
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play.png", UriKind.Relative);
+                bitmap.EndInit();
+                image2.Stretch = Stretch.Fill;
+                image2.Source = bitmap;
+
+                // set state
+                recordSet = false;
+            }
+
+            
+        }
+
+        private void image2_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+
         }
 
     }
