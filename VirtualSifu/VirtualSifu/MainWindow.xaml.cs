@@ -27,7 +27,9 @@ namespace VirtualSifu
         bool recordSet = false;
         ArrayList recordBuffer = new ArrayList();
         StreamWriter writer;
+        FileStream dataStream;
         int frameNumber = 0;
+        bool playback = false;
 
         public MainWindow()
         {
@@ -65,6 +67,21 @@ namespace VirtualSifu
 
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
+            if (playback == true)
+            {
+                using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+                {
+                    if (colorFrame == null)
+                    {
+                        return;
+                    }
+                    byte[] pixels = new byte[colorFrame.PixelDataLength];
+                    dataStream.Read(pixels, 0, colorFrame.PixelDataLength);
+                    int stride = colorFrame.Width * 4;
+                    masterView.Source = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                }
+            }
+
             if (recordSet == true)
             {
                 using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
@@ -75,14 +92,9 @@ namespace VirtualSifu
                     }
                     frameNumber++;
                     byte[] pixels = new byte[colorFrame.PixelDataLength];
-                    //for (int i = 0; i < pixels.Length; i++)
-                    //{
-                    //    writer.Write(pixels[i]);
-                    //    writer.Write(' ');
-                    //}
-                    //writer.WriteLine("end");
-
                     colorFrame.CopyPixelDataTo(pixels);
+
+                    dataStream.Write(pixels, 0, colorFrame.PixelDataLength);
                     
                     int stride = colorFrame.Width * 4;
                     masterView.Source = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
@@ -91,92 +103,61 @@ namespace VirtualSifu
                 }
                 using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
                 {
-                    //TimeSpan timeSpan = DateTime.Now.Subtract(referenceTime);
-                    //String referenceTime = DateTime.Now;
-                   // writer.Write("Frame Number: " + frameNumber);
-                    //writer.Write("\r\nSkeleton Frame Floor Clip Plane: " + skeletonFrame.FloorClipPlane);
-                    //writer.Write((int)skeletonFrame.Quality);
-                    //writer.Write(skeletonFrame.NormalToGravity);
-
-                   // writer.Write("\r\nSkeleton Frame Array Length: " + skeletonFrame.SkeletonArrayLength);
-                    Skeleton[] data = new Skeleton[skeletonFrame.SkeletonArrayLength];
-                    skeletonFrame.CopySkeletonDataTo(data);
-
-                    
-
-
-                    foreach (Skeleton skeleton in data)
+                    if (skeletonFrame != null)
                     {
+                        Skeleton[] data = new Skeleton[skeletonFrame.SkeletonArrayLength];
+                        skeletonFrame.CopySkeletonDataTo(data);
 
-                        if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
+                        foreach (Skeleton skeleton in data)
                         {
-                            SkeletonPoint point = skeleton.Joints[JointType.Head].Position;
-                            writer.Write("Head: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.ShoulderCenter].Position;
 
-                            writer.Write("ShoulderCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.ShoulderRight].Position;
-                            writer.Write("ShoulderRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.ElbowRight].Position;
-                            writer.Write("ElbowRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.WristRight].Position;
-                            writer.Write("WristRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.HandRight].Position;
-                            writer.Write("HandRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.ShoulderLeft].Position;
-                            writer.Write("ShoulderLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.ElbowLeft].Position;
-                            writer.Write("ElbowLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.WristLeft].Position;
-                            writer.Write("WristLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.HandLeft].Position;
-                            writer.Write("HandLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.Spine].Position;
-                            writer.Write("Spine: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.HipCenter].Position;
-                            writer.Write("HipCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.HipRight].Position;
-                            writer.Write("HipRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.KneeRight].Position;
-                            writer.Write("KneeRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.AnkleRight].Position;
-                            writer.Write("AnkleRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.FootRight].Position;
-                            writer.Write("FootRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.HipLeft].Position;
-                            writer.Write("HipLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.KneeLeft].Position;
-                            writer.Write("KneeLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.AnkleLeft].Position;
-                            writer.Write("AnkleLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            point = skeleton.Joints[JointType.FootLeft].Position;
-                            writer.Write("FootLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                            writer.Write("\r\n");
+                            if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
+                            {
+                                SkeletonPoint point = skeleton.Joints[JointType.Head].Position;
+                                writer.Write("Head: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.ShoulderCenter].Position;
 
-
-
-
-
+                                writer.Write("ShoulderCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.ShoulderRight].Position;
+                                writer.Write("ShoulderRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.ElbowRight].Position;
+                                writer.Write("ElbowRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.WristRight].Position;
+                                writer.Write("WristRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.HandRight].Position;
+                                writer.Write("HandRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.ShoulderLeft].Position;
+                                writer.Write("ShoulderLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.ElbowLeft].Position;
+                                writer.Write("ElbowLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.WristLeft].Position;
+                                writer.Write("WristLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.HandLeft].Position;
+                                writer.Write("HandLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.Spine].Position;
+                                writer.Write("Spine: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.HipCenter].Position;
+                                writer.Write("HipCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.HipRight].Position;
+                                writer.Write("HipRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.KneeRight].Position;
+                                writer.Write("KneeRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.AnkleRight].Position;
+                                writer.Write("AnkleRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.FootRight].Position;
+                                writer.Write("FootRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.HipLeft].Position;
+                                writer.Write("HipLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.KneeLeft].Position;
+                                writer.Write("KneeLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.AnkleLeft].Position;
+                                writer.Write("AnkleLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                point = skeleton.Joints[JointType.FootLeft].Position;
+                                writer.Write("FootLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+                                writer.Write("\r\n");
+                            }
                         }
-                        //writer.Write("\r\nTracking State: " + (int)skeleton.TrackingState);
-                        //writer.Write(" Skeleton Position: " + skeleton.Position);
-                        //writer.Write(" Skeleton Tracking ID: " + skeleton.TrackingId);
-                        //writer.Write(" Skeleton Tracking State: " + skeleton.TrackingState);
-                        //writer.Write(" Skeleton Joints: " + skeleton.Joints);
-                        //writer.Write(" Skeleton ClippedEdges: " + (int)skeleton.ClippedEdges);
-                        //writer.Write("\r\n");
-                        //writer.Write(skeleton.Joints[JointType.Head].Position);
-                        //writer.Write(skeleton.Joints.Count);
-                        //foreach (Joint joint in skeleton.Joints)
-                       // {
-                            //writer.Write("Joint Type: " + (int)joint.JointType);
-                            //writer.Write(" Joint Tracking State: " + (int)joint.TrackingState);
-                            //writer.Write(" Joint Position: " + joint.Position);
-                            //Console.WriteLine(joint.Position);
-                            //writer.Write("\r\n");
-                        //}
-                    }
-                    
+                    } 
                 }
             }
         }
@@ -202,19 +183,6 @@ namespace VirtualSifu
             StopKinect(kinectSensorChooser1.Kinect);
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            writer = new StreamWriter(FileText.Text + ".txt");
-            recordSet = true;
-        }
-
-        private void stop_Click(object sender, RoutedEventArgs e)
-        {
-            recordSet = false;
-
-            writer.Close();
-        }
-
         private void TiltSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             TiltAngle.Content = (int)TiltSlider.Value;
@@ -236,6 +204,7 @@ namespace VirtualSifu
             {
                 // begin writing
                 writer = new StreamWriter(FileText.Text + ".txt");
+                dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
 
                 // swap image to stop.png
                 BitmapImage bitmap = new BitmapImage();
@@ -252,6 +221,7 @@ namespace VirtualSifu
             {
                 // stop writing
                 writer.Close();
+                dataStream.Close();
 
                 // swap image to play.png
                 BitmapImage bitmap = new BitmapImage();
@@ -271,6 +241,12 @@ namespace VirtualSifu
         private void image2_ImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
 
+        }
+
+        private void Start_Click(object sender, RoutedEventArgs e)
+        {
+            playback = true;
+            dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
         }
 
     }
