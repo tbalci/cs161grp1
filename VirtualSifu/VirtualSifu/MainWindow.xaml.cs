@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Kinect;
+using System.Drawing;
 
 namespace VirtualSifu
 {
@@ -85,6 +86,8 @@ namespace VirtualSifu
                     
                     int stride = colorFrame.Width * 4;
                     masterView.Source = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                    
+
                 }
                 using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
                 {
@@ -110,6 +113,7 @@ namespace VirtualSifu
                             SkeletonPoint point = skeleton.Joints[JointType.Head].Position;
                             writer.Write("Head: " + point.X + " " + point.X + " " + point.Y + "\r\n");
                             point = skeleton.Joints[JointType.ShoulderCenter].Position;
+
                             writer.Write("ShoulderCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
                             point = skeleton.Joints[JointType.ShoulderRight].Position;
                             writer.Write("ShoulderRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
@@ -175,6 +179,13 @@ namespace VirtualSifu
                     
                 }
             }
+        }
+
+        void markAtPoint(ColorImagePoint p, Bitmap bmp)
+        {
+            Graphics g = Graphics.FromImage(bmp);
+            g.DrawEllipse(Pens.Red, p.X - 20, p.Y - 20, 40, 40);
+            //g.DrawEllipse(Pens.Red, new Rectangle(p.X - 20, p.Y - 20, 40, 40));
         }
 
         void StopKinect(KinectSensor _sensor)
