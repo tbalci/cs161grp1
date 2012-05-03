@@ -102,6 +102,21 @@
       <Name>Microsoft.Samples.Kinect.WpfViewers</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\stop2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\runningman.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
