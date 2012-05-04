@@ -5,13 +5,13 @@
     <Grid>
         <my:KinectSensorChooser HorizontalAlignment="Left" Margin="343,226,0,0" Name="kinectSensorChooser1" VerticalAlignment="Top" Width="328" />
         <Image Height="240" HorizontalAlignment="Left" Margin="46,214,0,0" Name="masterView" Stretch="Fill" VerticalAlignment="Top" Width="320" />
-        <Button Content="Set Tilt" Height="23" HorizontalAlignment="Left" Margin="776,526,0,0" Name="setTilt" VerticalAlignment="Top" Width="75" Click="setTilt_Click" />
+        <Button Content="Set Tilt" Height="23" HorizontalAlignment="Left" Margin="851,127,0,0" Name="setTilt" VerticalAlignment="Top" Width="75" Click="setTilt_Click" />
         <my:KinectColorViewer HorizontalAlignment="Left" Margin="639,214,0,0" Name="kinectColorViewer1" VerticalAlignment="Top" Width="640" Height="480" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
-        <Slider Height="94" HorizontalAlignment="Left" Margin="746,467,0,0" Name="TiltSlider" VerticalAlignment="Top" Width="24" Orientation="Vertical" Maximum="27" Minimum="-27" ValueChanged="TiltSlider_ValueChanged" />
-        <Label Content="0" Height="36" HorizontalAlignment="Left" Margin="806,485,0,0" Name="TiltAngle" VerticalAlignment="Top" FontWeight="Bold" Width="45" FontSize="18" />
+        <Slider Height="94" HorizontalAlignment="Left" Margin="941,93,0,0" Name="TiltSlider" VerticalAlignment="Top" Width="24" Orientation="Vertical" Maximum="27" Minimum="-27" ValueChanged="TiltSlider_ValueChanged" />
+        <Label Content="0" Height="36" HorizontalAlignment="Left" Margin="971,124,0,0" Name="TiltAngle" VerticalAlignment="Top" FontWeight="Bold" Width="45" FontSize="18" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="330,493,0,0" Name="FileText" VerticalAlignment="Top" Width="120" Text="Enter filename" />
-        <TextBlock Height="50" HorizontalAlignment="Left" Margin="46,170,0,0" Name="textBlock1" Text="You" VerticalAlignment="Top" FontSize="40" Width="200" />
-        <TextBlock Height="50" HorizontalAlignment="Left" Margin="639,170,0,0" Name="textBlock2" Text="Master" VerticalAlignment="Top" FontSize="40" Width="200" />
+        <TextBlock Height="50" HorizontalAlignment="Right" Margin="0,170,513,0" Name="textBlock1" Text="You" VerticalAlignment="Top" FontSize="40" Width="200" />
+        <TextBlock Height="50" HorizontalAlignment="Left" Margin="64,170,0,0" Name="textBlock2" Text="Master" VerticalAlignment="Top" FontSize="40" Width="200" />
         <Image Height="48" HorizontalAlignment="Left" Margin="488
                ,482,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image2_MouseDown" ImageFailed="image2_ImageFailed" />
         <Image Height="800" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="1024" Source="/VirtualSifu;component/Images/background.png" Panel.ZIndex="-1" />
