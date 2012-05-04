@@ -9,14 +9,13 @@
         <my:KinectColorViewer HorizontalAlignment="Left" Margin="639,214,0,0" Name="kinectColorViewer1" VerticalAlignment="Top" Width="640" Height="480" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
         <Slider Height="94" HorizontalAlignment="Left" Margin="941,93,0,0" Name="TiltSlider" VerticalAlignment="Top" Width="24" Orientation="Vertical" Maximum="27" Minimum="-27" ValueChanged="TiltSlider_ValueChanged" />
         <Label Content="0" Height="36" HorizontalAlignment="Left" Margin="971,124,0,0" Name="TiltAngle" VerticalAlignment="Top" FontWeight="Bold" Width="45" FontSize="18" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="330,493,0,0" Name="FileText" VerticalAlignment="Top" Width="120" Text="Enter filename" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="437,522,0,0" Name="FileText" VerticalAlignment="Top" Width="120" Text="Enter filename" />
         <TextBlock Height="50" HorizontalAlignment="Right" Margin="0,170,513,0" Name="textBlock1" Text="You" VerticalAlignment="Top" FontSize="40" Width="200" />
         <TextBlock Height="50" HorizontalAlignment="Left" Margin="64,170,0,0" Name="textBlock2" Text="Master" VerticalAlignment="Top" FontSize="40" Width="200" />
-        <Image Height="48" HorizontalAlignment="Left" Margin="488
-               ,482,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image2_MouseDown" ImageFailed="image2_ImageFailed" />
+        <Image Height="48" HorizontalAlignment="Left" Margin="475,468,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image2_MouseDown" ImageFailed="image2_ImageFailed" />
         <Image Height="800" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="1024" Source="/VirtualSifu;component/Images/background.png" Panel.ZIndex="-1" />
         <Image Height="150" HorizontalAlignment="Left" Name="image3" Stretch="Fill" VerticalAlignment="Top" Width="200" Source="/VirtualSifu;component/Images/runningman.png" />
-        <Button Content="Start" Height="23" HorizontalAlignment="Left" Margin="451,93,0,0" Name="Start" VerticalAlignment="Top" Width="75" Click="Start_Click" />
+        <Button Content="Start" Height="23" HorizontalAlignment="Left" Margin="461,431,0,0" Name="Start" VerticalAlignment="Top" Width="75" Click="Start_Click" />
         <Canvas Name="MainCanvas" Margin="639,214,99,67">
             <Ellipse Canvas.Left="0" Canvas.Top="0" Fill="Green" Height="20" Name="wristRight"  Width="20" Opacity="1" Stroke="White" />
             <Ellipse Canvas.Left="0" Canvas.Top="0" Fill="Green" Height="20" Name="wristLeft" Width="20" Opacity="1" Stroke="White" />
