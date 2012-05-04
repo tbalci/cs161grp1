@@ -34,7 +34,24 @@ namespace VirtualSifu
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
 
-        
+        //DTW Based Variables (yes i need these global)
+        StreamFileReader masterData = new StreamFileReader("FIGURE OUT THE FILENAME SOMEWHERE AND CHANGE AS NEEDED");
+        StreamFileReader studentData = new StreamFileReader("FIGURE OUT THE FILENAME SOMEWHERE AND CHANGE AS NEEDED");
+        DTW dtw = new DTW();
+        int numFrames = 6;
+        int start = 0;
+        double threshold = 1.0; //dummy value
+
+
+        //DTW Usage Class
+        static private String compareAccuracy(double val, double threshold)
+        {
+            if (val > threshold)
+            {
+                return "You need to improve!";
+            }
+            return "Great job!";
+        }
 
         public MainWindow()
         {
@@ -436,11 +453,6 @@ namespace VirtualSifu
             Canvas.SetTop(element, joint.Position.Y);
 
         }
-
-
-
-
-
 
         private static float Scale(int maxPixel, float maxSkeleton, float position)
         {
