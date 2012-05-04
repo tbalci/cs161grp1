@@ -318,6 +318,7 @@ namespace VirtualSifu
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             playback = true;
+            StreamFileReader masterData = new StreamFileReader(FileText.Text + ".txt");
             dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
         }
 
