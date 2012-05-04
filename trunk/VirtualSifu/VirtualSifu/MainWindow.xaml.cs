@@ -34,16 +34,21 @@ namespace VirtualSifu
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
 
-        //DTW Based Variables (yes i need these global)
-        StreamFileReader masterData = new StreamFileReader("FIGURE OUT THE FILENAME SOMEWHERE AND CHANGE AS NEEDED");
-        StreamFileReader studentData = new StreamFileReader("FIGURE OUT THE FILENAME SOMEWHERE AND CHANGE AS NEEDED");
+        //DTW Based Variables
+        //UNCOMMENT THE STREAMFILEREADERS for USAGE.
+        StreamFileReader masterData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS PART NEEDS TO BE RE-DIRECTED AFTER MOTION DATA IS SAVED
+        StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         DTW dtw = new DTW();
-        int numFrames = 6;
-        int start = 0;
+        int numFrames = 6; //THIS NEEDS TO BE CHANGED TO SOMETHING ELSE DETERMINED AT RUNTIME? How should we be determining this value? these are all temporary tests
         double threshold = 1.0; //dummy value
 
 
-        //DTW Usage Class
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        //DTW Private Usage Class -- maybe not needed anymore or needs modifications to fit our needs.
         static private String compareAccuracy(double val, double threshold)
         {
             if (val > threshold)
@@ -53,9 +58,26 @@ namespace VirtualSifu
             return "Great job!";
         }
 
-        public MainWindow()
+        //method to run DTW and return the needed value
+        // I kinda need Gina here to take a look and adapt this to our needs
+        //@param joint corresponds to the joint that you desire (see JointData.cs for full list of usable joints)
+        private double runDTW(String joint)
         {
-            InitializeComponent();
+            ArrayList masterList = masterData.getJointArray(joint); //Note: you better have defined masterData to something before running this part.
+            ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
+            int start = 0;
+            int size = studentList.Count;
+            double val = 0;
+
+            while (start < size)
+            {
+                if (start + numFrames >= size)
+                {
+                    numFrames = size - start;
+                }
+                val = dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
+            }
+            return val;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
