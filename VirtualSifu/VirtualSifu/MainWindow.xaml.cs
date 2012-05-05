@@ -146,6 +146,10 @@ namespace VirtualSifu
                                             Random random = new Random();
                                             foreach (Ellipse ellipse in MainCanvas.Children)
                                                 colorJoint(ellipse, random.Next(0, 4));
+                                            //Probably can do this part like Gina's
+                                            //Get a joint list that you want calculated
+                                            //perform runDTW on each individual joint
+                                            //then do your coloring/drawing for it.
 
 
                                         }
@@ -251,6 +255,9 @@ namespace VirtualSifu
                                 point = skeleton.Joints[JointType.FootLeft].Position;
                                 writer.Write("FootLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
                                 writer.Write("\r\n");
+
+                                //Somewhere after all this code has run, we need to finish construction of 
+                                //our FileStreamReader for Student [and master?]
                             }
                         }
                     } 
