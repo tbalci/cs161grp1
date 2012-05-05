@@ -36,10 +36,12 @@ namespace VirtualSifu
 
         //DTW Based Variables
         //UNCOMMENT THE STREAMFILEREADERS for USAGE.
+        //StreamFileReader is kept Global because we only want to parse it once.
+        //It returns any joint array we ask it for.
         StreamFileReader masterData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS PART NEEDS TO BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         DTW dtw = new DTW();
-        int numFrames = 6; //THIS NEEDS TO BE CHANGED TO SOMETHING ELSE DETERMINED AT RUNTIME? How should we be determining this value? these are all temporary tests
+        int numFrames = 6; //might be changed to 15 or 30 depending on how many frames we want to run at a time.
         double threshold = 1.0; //dummy value
 
 
@@ -48,18 +50,10 @@ namespace VirtualSifu
             InitializeComponent();
         }
 
-        //DTW Private Usage Class -- maybe not needed anymore or needs modifications to fit our needs.
-        static private String compareAccuracy(double val, double threshold)
-        {
-            if (val > threshold)
-            {
-                return "You need to improve!";
-            }
-            return "Great job!";
-        }
-
         //method to run DTW and return the needed value
-        // I kinda need Gina here to take a look and adapt this to our needs
+        //This has been adapted from Gina's code
+        //I modified this slightly to return the average DTW instead of a single value.. however I am confirming with Gina
+        // whether this is or isn't the correct approach we should be taking
         //@param joint corresponds to the joint that you desire (see JointData.cs for full list of usable joints)
         private double runDTW(String joint)
         {
@@ -67,6 +61,7 @@ namespace VirtualSifu
             ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
             int start = 0;
             int size = studentList.Count;
+            int counter = 0; //used to get average of DTW data
             double val = 0;
 
             while (start < size)
@@ -75,9 +70,9 @@ namespace VirtualSifu
                 {
                     numFrames = size - start;
                 }
-                val = dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
+                val += dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
             }
-            return val;
+            return val/counter; // returns average DTW data gathered. (sum of values returned) / (amount of times dtw was run)
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
