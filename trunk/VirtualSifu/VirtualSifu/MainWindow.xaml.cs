@@ -50,29 +50,29 @@ namespace VirtualSifu
             InitializeComponent();
         }
 
-        //method to run DTW and return the needed value
+        //method to run DTW and return an [array] containing the DTW data.
         //This has been adapted from Gina's code
-        //I modified this slightly to return the average DTW instead of a single value.. however I am confirming with Gina
-        // whether this is or isn't the correct approach we should be taking
         //@param joint corresponds to the joint that you desire (see JointData.cs for full list of usable joints)
-        private double runDTW(String joint)
+        private ArrayList runDTW(String joint)
         {
             ArrayList masterList = masterData.getJointArray(joint); //Note: you better have defined masterData to something before running this part.
             ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
+            ArrayList jData = new ArrayList();
+
             int start = 0;
             int size = studentList.Count;
-            int counter = 0; //used to get average of DTW data
             double val = 0;
 
             while (start < size)
             {
                 if (start + numFrames >= size)
-                {
+                {   
                     numFrames = size - start;
                 }
-                val += dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
+                val = dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
+                jData.Add(val);
             }
-            return val/counter; // returns average DTW data gathered. (sum of values returned) / (amount of times dtw was run)
+            return jData;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -143,6 +143,7 @@ namespace VirtualSifu
                                         if (playbackFrameNumber % 30 == 0)
                                         {
                                             //run DTW for each joint
+                                            //each runDTW will return an arraylist of doubles that contain all the necessary information
                                             Random random = new Random();
                                             foreach (Ellipse ellipse in MainCanvas.Children)
                                                 colorJoint(ellipse, random.Next(0, 4));
