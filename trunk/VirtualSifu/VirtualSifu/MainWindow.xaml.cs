@@ -41,9 +41,8 @@ namespace VirtualSifu
         StreamFileReader masterData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS PART NEEDS TO BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         DTW dtw = new DTW();
-        int numFrames = 6; //might be changed to 15 or 30 depending on how many frames we want to run at a time.
         double threshold = 1.0; //dummy value
-
+        int startFrame = 0;
 
         public MainWindow()
         {
@@ -58,7 +57,7 @@ namespace VirtualSifu
             ArrayList masterList = masterData.getJointArray(joint); //Note: you better have defined masterData to something before running this part.
             ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
             ArrayList jData = new ArrayList();
-
+            int numFrames = 6;
             int start = 0;
             int size = studentList.Count;
             double val = 0;
@@ -71,7 +70,34 @@ namespace VirtualSifu
                 }
                 val = dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
                 jData.Add(val);
+                start += numFrames;
             }
+            return jData;
+        }
+
+        //Second iteration of runDTW.
+        //this one will instead return an array containing DTW information for each joint (this is to save memory and lines of code later)
+        //startFrame is global [i planned to make it static, but can't be bothered right now] so that we can keep track of which frame we're at
+        //haven't tried this one out yet, so i dont know if it'll work. It's just a concept idea for now
+        private ArrayList runDTW2()
+        {
+            int numFrames = 6;
+            string[] jointsList = {"Head", "ShoulderLeft", "ShoulderRight", "ElbowLeft", "ElbowRight", "WristLeft", "WristRight", "KneeLeft", "KneeRight",
+                                    "AnkleLeft", "AnkleRight"};
+            ArrayList jData = new ArrayList();
+            foreach (String joint in jointsList)
+            {
+                ArrayList masterList = masterData.getJointArray(joint);
+                ArrayList studentList = masterData.getJointArray(joint);
+                int size = studentList.Count;
+                if (startFrame + numFrames > size)
+                {
+                    numFrames = size - startFrame;
+                }
+                double val = dtw.DTWDistance(masterList.GetRange(startFrame, numFrames), studentList.GetRange(startFrame, numFrames));
+                jData.Add(val);
+            }
+            startFrame += numFrames;
             return jData;
         }
 
