@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -34,32 +35,71 @@ namespace VirtualSifu
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
 
+        String[] jointsTracked = { "AnkleRight", "AnkleLeft", "KneeRight", "KneeLeft", "HipRight", "HipLeft", "ShoulderRight", "ShoulderLeft", "ElbowRight", "ElbowLeft", "WristRight", "WristLeft" };
+
+//<<<<<<< .mine
+       //StreamFileReader masterData;
+//=======
         //DTW Based Variables
         //UNCOMMENT THE STREAMFILEREADERS for USAGE.
         //StreamFileReader is kept Global because we only want to parse it once.
         //It returns any joint array we ask it for.
         StreamFileReader masterData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS PART NEEDS TO BE RE-DIRECTED AFTER MOTION DATA IS SAVED
-        StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
+        //StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         DTW dtw = new DTW();
         double threshold = 1.0; //dummy value
         int startFrame = 0;
+// .r33
+       ProfileData studentData;
+        
+
+
+        JointData[] studentLeftWristData = new JointData[30];
+        JointData[] studentRightWristData = new JointData[30];
+        JointData[] studentLeftElbowData = new JointData[30];
+        JointData[] studentRightElbowData = new JointData[30];
+        JointData[] studentLeftShoulderData = new JointData[30];
+        JointData[] studentRightShoulderData = new JointData[30];
+        JointData[] studentLeftAnkleData = new JointData[30];
+        JointData[] studentRightAnkleData = new JointData[30];
+        JointData[] studentLeftKneeData = new JointData[30];
+        JointData[] studentRightKneeData = new JointData[30];
+        JointData[] studentLeftHipData = new JointData[30];
+        JointData[] studentRightHipData = new JointData[30];
+
+        ArrayList masterLeftWristData = new ArrayList();
+        ArrayList masterRightWristData = new ArrayList();
+        ArrayList masterLeftElbowData = new ArrayList();
+        ArrayList masterRightElbowData = new ArrayList();
+        ArrayList masterLeftShoulderData = new ArrayList();
+        ArrayList masterRightShoulderData = new ArrayList();
+        ArrayList masterLeftAnkleData = new ArrayList();
+        ArrayList masterRightAnkleData = new ArrayList();
+        ArrayList masterLeftKneeData = new ArrayList();
+        ArrayList masterRightKneeData = new ArrayList();
+        ArrayList masterLeftHipData = new ArrayList();
+        ArrayList masterRightHipData = new ArrayList();
+       
+
+
 
         public MainWindow()
         {
+            studentData = new ProfileData(jointsTracked);
             InitializeComponent();
         }
 
         //method to run DTW and return an [array] containing the DTW data.
         //This has been adapted from Gina's code
         //@param joint corresponds to the joint that you desire (see JointData.cs for full list of usable joints)
-        private ArrayList runDTW(String joint)
+       /* private ArrayList runDTW(String joint)
         {
             ArrayList masterList = masterData.getJointArray(joint); //Note: you better have defined masterData to something before running this part.
-            ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
+            //ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
             ArrayList jData = new ArrayList();
             int numFrames = 6;
             int start = 0;
-            int size = studentList.Count;
+           // int size = studentList.Count;
             double val = 0;
 
             while (start < size)
@@ -73,7 +113,7 @@ namespace VirtualSifu
                 start += numFrames;
             }
             return jData;
-        }
+        } */
 
         //Second iteration of runDTW.
         //this one will instead return an array containing DTW information for each joint (this is to save memory and lines of code later)
@@ -99,6 +139,33 @@ namespace VirtualSifu
             }
             startFrame += numFrames;
             return jData;
+        }
+
+        private OrderedDictionary getJointDict()
+        {
+            OrderedDictionary jointDict = new OrderedDictionary();
+            foreach (String joint in jointsTracked)
+                jointDict.Add(joint, new ArrayList());
+            return jointDict;
+        }
+
+        //helper method
+        private Joint getJoint(String joint, Skeleton skeleton)
+        {
+            if (joint.Equals("AnkleRight")) return skeleton.Joints[JointType.AnkleRight];
+            else if (joint.Equals("AnkleLeft")) return skeleton.Joints[JointType.AnkleLeft];
+            else if (joint.Equals("KneeRight")) return skeleton.Joints[JointType.KneeRight];
+            else if (joint.Equals("KneeLeft")) return skeleton.Joints[JointType.KneeLeft];
+            else if (joint.Equals("HipRight")) return skeleton.Joints[JointType.HipRight];
+            else if (joint.Equals("HipLeft")) return skeleton.Joints[JointType.HipLeft];
+            else if (joint.Equals("ShoulderRight")) return skeleton.Joints[JointType.ShoulderRight];
+            else if (joint.Equals("ShoulderLeft")) return skeleton.Joints[JointType.ShoulderLeft];
+            else if (joint.Equals("ElbowRight")) return skeleton.Joints[JointType.ElbowRight];
+            else if (joint.Equals("ElbowLeft")) return skeleton.Joints[JointType.ElbowLeft];
+            else if (joint.Equals("WristRight")) return skeleton.Joints[JointType.WristRight];
+            else if (joint.Equals("WristLeft")) return skeleton.Joints[JointType.WristLeft];
+            else return skeleton.Joints[JointType.Head];
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -132,6 +199,8 @@ namespace VirtualSifu
 
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
+
+
             if (playback == true)
             {
                 using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
@@ -141,7 +210,6 @@ namespace VirtualSifu
                         return;
                     }
                     playbackFrameNumber++;
-                    Console.Write(playbackFrameNumber);
                     byte[] pixels = new byte[colorFrame.PixelDataLength];
                     dataStream.Read(pixels, 0, colorFrame.PixelDataLength);
                     int stride = colorFrame.Width * 4;
@@ -163,16 +231,60 @@ namespace VirtualSifu
                                 if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                                 {
 
+                                    SkeletonPoint studentPoint = skeleton.Joints[JointType.WristRight].Position;
+                                    foreach (String joint in jointsTracked)
+                                    {
+                                        ((ArrayList)studentData.Get(joint)).Insert(playbackFrameNumber % 30, new JointData(1, 2, 3));
+                                       //((ArrayList) studentData.Get(joint))[playbackFrameNumber % 30] = new JointData(1,2,3);
+                                    }
+                                    /*studentRightWristData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.WristLeft].Position;
+                                    studentLeftWristData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.ElbowRight].Position;
+                                    studentRightElbowData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.ElbowLeft].Position;
+                                    studentLeftElbowData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.ShoulderRight].Position;
+                                    studentRightShoulderData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.ShoulderLeft].Position;
+                                    studentLeftShoulderData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.AnkleRight].Position;
+                                    studentRightAnkleData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.AnkleLeft].Position;
+                                    studentLeftAnkleData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.KneeRight].Position;
+                                    studentRightKneeData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.KneeLeft].Position;
+                                    studentLeftKneeData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.HipRight].Position;
+                                    studentRightHipData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
+                                    studentPoint = skeleton.Joints[JointType.HipLeft].Position;
+                                    studentLeftHipData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z); */
+
+                                   
+
                                     if (1 == 1)
                                     {
                                         //something might go here
                                         if (playbackFrameNumber % 30 == 0)
                                         {
                                             //run DTW for each joint
+//<<<<<<< .mine
+
+
+//=======
                                             //each runDTW will return an arraylist of doubles that contain all the necessary information
+//>>>>>>> .r33
                                             Random random = new Random();
-                                            foreach (Ellipse ellipse in MainCanvas.Children)
-                                                colorJoint(ellipse, random.Next(0, 4));
+
+                                            foreach (Object obj in MainCanvas.Children)
+                                            {
+                                                Ellipse ellipse = obj as Ellipse;
+                                                if (ellipse != null)
+                                                    colorJoint(ellipse, random.Next(0, 4));
+
+                                            }
+                                                //colorJoint(ellipse, random.Next(0, 4));
                                             //Probably can do this part like Gina's
                                             //Get a joint list that you want calculated
                                             //perform runDTW on each individual joint
@@ -181,7 +293,6 @@ namespace VirtualSifu
 
                                         }
                                     }
-
 
                                     ScalePosition(wristRight, skeleton.Joints[JointType.WristLeft]);
                                     ScalePosition(wristLeft, skeleton.Joints[JointType.WristLeft]);
@@ -229,6 +340,7 @@ namespace VirtualSifu
                 {
                     if (skeletonFrame != null)
                     {
+                        Console.Write(masterLeftWristData.Count);
                         Skeleton[] data = new Skeleton[skeletonFrame.SkeletonArrayLength];
                         skeletonFrame.CopySkeletonDataTo(data);
 
@@ -338,13 +450,31 @@ namespace VirtualSifu
 
         private void image2_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            
+
 
             if (!recordSet)
             {
                 // begin writing
                 writer = new StreamWriter(FileText.Text + ".txt");
                 dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
+
+                masterData = new StreamFileReader(FileText.Text + ".txt");
+
+
+                masterLeftWristData = masterData.getJointArray("WristLeft");
+                masterRightWristData = masterData.getJointArray("WristRight");
+                masterLeftElbowData = masterData.getJointArray("WristLeft");
+                masterRightElbowData = masterData.getJointArray("ElbowRight");
+                masterLeftShoulderData = masterData.getJointArray("ShoulderLeft");
+                masterRightShoulderData = masterData.getJointArray("ShoulderRIght");
+                masterLeftAnkleData = masterData.getJointArray("AnkleLeft");
+                masterRightAnkleData = masterData.getJointArray("AnkleRight");
+                masterLeftKneeData = masterData.getJointArray("KneeLeft");
+                masterRightKneeData = masterData.getJointArray("KneeRight");
+                masterLeftHipData = masterData.getJointArray("HipLeft");
+                masterRightHipData = masterData.getJointArray("HipRight");
+
+                
 
                 // swap image to stop.png
                 BitmapImage bitmap = new BitmapImage();
@@ -515,7 +645,36 @@ namespace VirtualSifu
             return value;
         }
 
+        class ProfileData
+        {
+            public String[] joints;
+            public ArrayList[] data;
 
+            public ProfileData(String[] joints)
+            {
+                this.joints = joints;
+                int i = 0;
+                data = new ArrayList[joints.Length];
+                foreach (String joint in joints)
+                {
+                    data[i] = new ArrayList(30);
+                    for (int j = 0; j < 30; j++)
+                        data[i].Add(new JointData(0, 0, 0));
+                    i++;
+                }
+            }
+
+            public ArrayList Get(String joint)
+            {
+                for (int i = 0; i < joints.Length; i++)
+                    if (joints[i].Equals(joint))
+                        return data[i];
+                    else
+                        return data[0];
+                return data[0];
+            }
+
+        }
     }
 
 
