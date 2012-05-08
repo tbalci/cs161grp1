@@ -4,11 +4,14 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace VirtualSifu
 {
     class DTW
     {
+        StreamWriter logging = new StreamWriter("logging.txt");
+
         private double EuclideanDistance(JointData masterJoint, JointData studentJoint)
         {
             return Math.Sqrt(Math.Pow((masterJoint.xData - studentJoint.xData), 2) + Math.Pow((masterJoint.yData - studentJoint.yData), 2)
@@ -17,6 +20,12 @@ namespace VirtualSifu
 
         public double DTWDistance(ArrayList masterList, ArrayList studentList)
         {
+            for (int i = 0; i < masterList.Count; i++)
+            {
+                logging.Write(masterList[i].ToString() + "<<>>" + studentList[i].ToString());
+                logging.Write("\r\n");
+            }
+
             int size = masterList.Count;
             var DTWMatrix = new double[size + 1, size + 1];
 
