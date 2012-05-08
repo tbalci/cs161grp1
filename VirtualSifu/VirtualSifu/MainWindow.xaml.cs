@@ -247,17 +247,19 @@ namespace VirtualSifu
                                         {
                                             //run DTW for each joint
 
+                                            ArrayList dtwData = runDTW2();
 
-                                            //each runDTW will return an arraylist of doubles that contain all the necessary information
-                                            Random random = new Random();
+                                            colorJoint(shoulderLeft, (double)dtwData[0]);
+                                            colorJoint(shoulderRight, (double)dtwData[1]);
+                                            colorJoint(elbowLeft, (double)dtwData[2]);
+                                            colorJoint(elbowRight, (double)dtwData[3]);
+                                            colorJoint(wristLeft, (double)dtwData[4]);
+                                            colorJoint(wristRight, (double)dtwData[5]);
+                                            colorJoint(kneeLeft, (double)dtwData[6]);
+                                            colorJoint(kneeRight, (double)dtwData[7]);
+                                            colorJoint(shoulderLeft, (double)dtwData[8]);
+                                            colorJoint(shoulderRight, (double)dtwData[9]);
 
-                                            foreach (Object obj in MainCanvas.Children)
-                                            {
-                                                Ellipse ellipse = obj as Ellipse;
-                                                if (ellipse != null)
-                                                    colorJoint(ellipse, random.Next(0, 4));
-
-                                            }
                                                 //colorJoint(ellipse, random.Next(0, 4));
                                             //Probably can do this part like Gina's
                                             //Get a joint list that you want calculated
@@ -348,7 +350,7 @@ namespace VirtualSifu
             }
         }
 
-        void colorJoint(Ellipse ellipse, int accuracy)
+        void colorJoint(Ellipse ellipse, double accuracy)
         {
             if (accuracy == 0)
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
