@@ -48,7 +48,7 @@ namespace VirtualSifu
         DTW dtw = new DTW();
         double threshold = 1.0; //dummy value
         int startFrame = 0;
-       ProfileData studentData;
+        ProfileData studentData;
         
 
         /*
@@ -120,23 +120,26 @@ namespace VirtualSifu
         //haven't tried this one out yet, so i dont know if it'll work. It's just a concept idea for now
         private ArrayList runDTW2()
         {
-            int numFrames = 6;
-            string[] jointsList = {"Head", "ShoulderLeft", "ShoulderRight", "ElbowLeft", "ElbowRight", "WristLeft", "WristRight", "KneeLeft", "KneeRight",
-                                    "AnkleLeft", "AnkleRight"};
+            int numFrames = 30;
+
             ArrayList jData = new ArrayList();
-            foreach (String joint in jointsList)
+            foreach (String joint in jointsTracked)
             {
                 ArrayList masterList = masterData.getJointArray(joint);
-                ArrayList studentList = masterData.getJointArray(joint);
-                int size = studentList.Count;
+                
+                ArrayList studentList = studentData.Get(joint);
+                int size = masterList.Count;
                 if (startFrame + numFrames > size)
                 {
                     numFrames = size - startFrame;
                 }
+
                 double val = dtw.DTWDistance(masterList.GetRange(startFrame, numFrames), studentList.GetRange(startFrame, numFrames));
                 jData.Add(val);
+
             }
             startFrame += numFrames;
+
             return jData;
         }
 
@@ -230,7 +233,7 @@ namespace VirtualSifu
                                 if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                                 {
 
-                                    SkeletonPoint studentPoint = skeleton.Joints[JointType.WristRight].Position;
+                                    SkeletonPoint studentPoint;
                                     foreach (String joint in jointsTracked)
                                     {
                                         studentPoint = getJoint(joint, skeleton).Position;
@@ -243,22 +246,23 @@ namespace VirtualSifu
                                     if (1 == 1)
                                     {
                                         //something might go here
-                                        if (playbackFrameNumber % 30 == 0)
+                                        if (playbackFrameNumber != 0 && playbackFrameNumber  % 30 == 0)
                                         {
                                             //run DTW for each joint
 
                                             ArrayList dtwData = runDTW2();
-
-                                            colorJoint(shoulderLeft, (double)dtwData[0]);
-                                            colorJoint(shoulderRight, (double)dtwData[1]);
-                                            colorJoint(elbowLeft, (double)dtwData[2]);
-                                            colorJoint(elbowRight, (double)dtwData[3]);
-                                            colorJoint(wristLeft, (double)dtwData[4]);
-                                            colorJoint(wristRight, (double)dtwData[5]);
-                                            colorJoint(kneeLeft, (double)dtwData[6]);
-                                            colorJoint(kneeRight, (double)dtwData[7]);
-                                            colorJoint(shoulderLeft, (double)dtwData[8]);
-                                            colorJoint(shoulderRight, (double)dtwData[9]);
+                                            colorJoint(ankleRight, (double)dtwData[0]);
+                                            colorJoint(ankleLeft, (double)dtwData[1]);
+                                            colorJoint(kneeRight, (double)dtwData[2]);
+                                            colorJoint(kneeLeft, (double)dtwData[3]);
+                                            colorJoint(hipRight, (double)dtwData[4]);
+                                            colorJoint(hipLeft, (double)dtwData[5]);
+                                            colorJoint(shoulderRight, (double)dtwData[6]);
+                                            colorJoint(shoulderLeft, (double)dtwData[7]);
+                                            colorJoint(elbowRight, (double)dtwData[8]);
+                                            colorJoint(elbowLeft, (double)dtwData[9]);
+                                            colorJoint(wristRight, (double)dtwData[10]);
+                                            colorJoint(wristLeft, (double)dtwData[11]);
 
                                                 //colorJoint(ellipse, random.Next(0, 4));
                                             //Probably can do this part like Gina's
@@ -333,7 +337,7 @@ namespace VirtualSifu
                                 foreach (String joint in jointsTracked)
                                 {
                                     point = getJoint(joint, skeleton).Position;
-                                    writer.Write(joint + ":" + point.X + " " + point.Y + " " + point.Z + "\r\n");
+                                    writer.Write(joint + ": " + point.X + " " + point.Y + " " + point.Z + "\r\n");
 
 
                                 }
@@ -352,9 +356,9 @@ namespace VirtualSifu
 
         void colorJoint(Ellipse ellipse, double accuracy)
         {
-            if (accuracy == 0)
+            if (accuracy > 25)
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
-            else if (accuracy == 1)
+            else if (accuracy > 12 )
                 ellipse.Fill = new SolidColorBrush(Colors.Yellow);
             else
                 ellipse.Fill = new SolidColorBrush(Colors.Green);
@@ -449,8 +453,9 @@ namespace VirtualSifu
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
+            startFrame = 0;
             playback = true;
-            StreamFileReader masterData = new StreamFileReader(FileText.Text + ".txt");
+            masterData = new StreamFileReader(FileText.Text + ".txt");
             dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
         }
 
@@ -589,7 +594,6 @@ namespace VirtualSifu
                         return data[i];
                 return null;
             }
-
         }
     }
 
