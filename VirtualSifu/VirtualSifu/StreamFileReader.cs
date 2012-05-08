@@ -93,6 +93,13 @@ namespace VirtualSifu
                     case "FootLeft:":
                         footLeftJ.Add(parseJoint(data));
                         break;
+                    case "HipLeft:":
+                        hipLeftJ.Add(parseJoint(data));
+                        break;
+                    case "HipRight:":
+                        hipRightJ.Add(parseJoint(data));
+                        break;
+
                 }
             }
         }
@@ -142,6 +149,10 @@ namespace VirtualSifu
                     return ankleLeftJ;
                 case "FootLeft":
                     return footLeftJ;
+                case "HipLeft":
+                    return hipLeftJ;
+                case "HipRight":
+                    return hipRightJ;
             }
             return null;
 
