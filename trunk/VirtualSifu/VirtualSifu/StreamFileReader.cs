@@ -43,8 +43,6 @@ namespace VirtualSifu
             while ((line = file.ReadLine()) != null)
             {
                 String[] data = line.Split(' ');
-
-
                 switch (data[0])
                 {
                     case "Head:":
