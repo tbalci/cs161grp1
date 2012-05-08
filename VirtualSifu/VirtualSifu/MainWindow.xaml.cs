@@ -37,9 +37,8 @@ namespace VirtualSifu
 
         String[] jointsTracked = { "AnkleRight", "AnkleLeft", "KneeRight", "KneeLeft", "HipRight", "HipLeft", "ShoulderRight", "ShoulderLeft", "ElbowRight", "ElbowLeft", "WristRight", "WristLeft" };
 
-//<<<<<<< .mine
        //StreamFileReader masterData;
-//=======
+
         //DTW Based Variables
         //UNCOMMENT THE STREAMFILEREADERS for USAGE.
         //StreamFileReader is kept Global because we only want to parse it once.
@@ -49,11 +48,10 @@ namespace VirtualSifu
         DTW dtw = new DTW();
         double threshold = 1.0; //dummy value
         int startFrame = 0;
-// .r33
        ProfileData studentData;
         
 
-
+        /*
         JointData[] studentLeftWristData = new JointData[30];
         JointData[] studentRightWristData = new JointData[30];
         JointData[] studentLeftElbowData = new JointData[30];
@@ -66,6 +64,7 @@ namespace VirtualSifu
         JointData[] studentRightKneeData = new JointData[30];
         JointData[] studentLeftHipData = new JointData[30];
         JointData[] studentRightHipData = new JointData[30];
+        */
 
         ArrayList masterLeftWristData = new ArrayList();
         ArrayList masterRightWristData = new ArrayList();
@@ -234,32 +233,10 @@ namespace VirtualSifu
                                     SkeletonPoint studentPoint = skeleton.Joints[JointType.WristRight].Position;
                                     foreach (String joint in jointsTracked)
                                     {
-                                        ((ArrayList)studentData.Get(joint)).Insert(playbackFrameNumber % 30, new JointData(1, 2, 3));
-                                       //((ArrayList) studentData.Get(joint))[playbackFrameNumber % 30] = new JointData(1,2,3);
+                                        studentPoint = getJoint(joint, skeleton).Position;
+                                        ((ArrayList)studentData.Get(joint)).Insert(playbackFrameNumber % 30, new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z));
                                     }
-                                    /*studentRightWristData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.WristLeft].Position;
-                                    studentLeftWristData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.ElbowRight].Position;
-                                    studentRightElbowData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.ElbowLeft].Position;
-                                    studentLeftElbowData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.ShoulderRight].Position;
-                                    studentRightShoulderData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.ShoulderLeft].Position;
-                                    studentLeftShoulderData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.AnkleRight].Position;
-                                    studentRightAnkleData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.AnkleLeft].Position;
-                                    studentLeftAnkleData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.KneeRight].Position;
-                                    studentRightKneeData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.KneeLeft].Position;
-                                    studentLeftKneeData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.HipRight].Position;
-                                    studentRightHipData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z);
-                                    studentPoint = skeleton.Joints[JointType.HipLeft].Position;
-                                    studentLeftHipData[playbackFrameNumber % 30] = new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z); */
+
 
                                    
 
@@ -269,12 +246,9 @@ namespace VirtualSifu
                                         if (playbackFrameNumber % 30 == 0)
                                         {
                                             //run DTW for each joint
-//<<<<<<< .mine
 
 
-//=======
                                             //each runDTW will return an arraylist of doubles that contain all the necessary information
-//>>>>>>> .r33
                                             Random random = new Random();
 
                                             foreach (Object obj in MainCanvas.Children)
@@ -293,6 +267,7 @@ namespace VirtualSifu
 
                                         }
                                     }
+
 
                                     ScalePosition(wristRight, skeleton.Joints[JointType.WristLeft]);
                                     ScalePosition(wristLeft, skeleton.Joints[JointType.WristLeft]);
@@ -351,49 +326,18 @@ namespace VirtualSifu
                             {
 
                                 SkeletonPoint point = skeleton.Joints[JointType.Head].Position;
-                                writer.Write("Head: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.ShoulderCenter].Position;
 
 
+                                foreach (String joint in jointsTracked)
+                                {
+                                    point = getJoint(joint, skeleton).Position;
+                                    writer.Write(joint + ":" + point.X + " " + point.Y + " " + point.Z + "\r\n");
 
-                                writer.Write("ShoulderCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.ShoulderRight].Position;
-                                writer.Write("ShoulderRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.ElbowRight].Position;
-                                writer.Write("ElbowRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.WristRight].Position;
-                                writer.Write("WristRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.HandRight].Position;
-                                writer.Write("HandRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.ShoulderLeft].Position;
-                                writer.Write("ShoulderLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.ElbowLeft].Position;
-                                writer.Write("ElbowLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.WristLeft].Position;
-                                writer.Write("WristLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.HandLeft].Position;
-                                writer.Write("HandLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.Spine].Position;
-                                writer.Write("Spine: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.HipCenter].Position;
-                                writer.Write("HipCenter: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.HipRight].Position;
-                                writer.Write("HipRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.KneeRight].Position;
-                                writer.Write("KneeRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.AnkleRight].Position;
-                                writer.Write("AnkleRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.FootRight].Position;
-                                writer.Write("FootRight: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.HipLeft].Position;
-                                writer.Write("HipLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.KneeLeft].Position;
-                                writer.Write("KneeLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.AnkleLeft].Position;
-                                writer.Write("AnkleLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
-                                point = skeleton.Joints[JointType.FootLeft].Position;
-                                writer.Write("FootLeft: " + point.X + " " + point.X + " " + point.Y + "\r\n");
+
+                                }
+                                 
                                 writer.Write("\r\n");
+                                
 
                                 //Somewhere after all this code has run, we need to finish construction of 
                                 //our FileStreamReader for Student [and master?]
@@ -451,28 +395,15 @@ namespace VirtualSifu
         private void image2_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-
+            //if we just pressed the button to record
             if (!recordSet)
             {
                 // begin writing
                 writer = new StreamWriter(FileText.Text + ".txt");
                 dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
 
-                masterData = new StreamFileReader(FileText.Text + ".txt");
+                //masterData = new StreamFileReader(FileText.Text + ".txt");
 
-
-                masterLeftWristData = masterData.getJointArray("WristLeft");
-                masterRightWristData = masterData.getJointArray("WristRight");
-                masterLeftElbowData = masterData.getJointArray("WristLeft");
-                masterRightElbowData = masterData.getJointArray("ElbowRight");
-                masterLeftShoulderData = masterData.getJointArray("ShoulderLeft");
-                masterRightShoulderData = masterData.getJointArray("ShoulderRIght");
-                masterLeftAnkleData = masterData.getJointArray("AnkleLeft");
-                masterRightAnkleData = masterData.getJointArray("AnkleRight");
-                masterLeftKneeData = masterData.getJointArray("KneeLeft");
-                masterRightKneeData = masterData.getJointArray("KneeRight");
-                masterLeftHipData = masterData.getJointArray("HipLeft");
-                masterRightHipData = masterData.getJointArray("HipRight");
 
                 
 
@@ -487,6 +418,7 @@ namespace VirtualSifu
                 // set state
                 recordSet = true;
             }
+            //if we just pressed the button to stop recording
             else
             {
                 // stop writing
@@ -555,51 +487,35 @@ namespace VirtualSifu
 
 
                 //Map a joint location to a point on the depth map
-
-
-                DepthImagePoint rightWristPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.WristRight].Position);
-                DepthImagePoint leftWristDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.WristLeft].Position);
-                DepthImagePoint rightElbowPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.ElbowRight].Position);
-                DepthImagePoint leftElbowDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.ElbowLeft].Position);
-                DepthImagePoint rightShoulderPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.ShoulderRight].Position);
-                DepthImagePoint leftSholderDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.ShoulderLeft].Position);
-                DepthImagePoint rightAnkleDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.AnkleRight].Position);
-                DepthImagePoint leftAnkleDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.AnkleLeft].Position);
-                DepthImagePoint rightKneePoint = depth.MapFromSkeletonPoint(first.Joints[JointType.KneeRight].Position);
-                DepthImagePoint leftKneeDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.KneeLeft].Position);
-                DepthImagePoint rightHipPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.HipRight].Position);
-                DepthImagePoint leftHipDepthPoint = depth.MapFromSkeletonPoint(first.Joints[JointType.HipLeft].Position);
+                DepthImagePoint[] depthPoints = new DepthImagePoint[jointsTracked.Count()];
+                for(int i=0; i < jointsTracked.Count(); i++)
+                    depthPoints[i] = depth.MapFromSkeletonPoint(getJoint(jointsTracked[i], first).Position);
 
 
 
                 //Map a depth point to a point on the color image
-                ColorImagePoint rightWristColorPoint = depth.MapToColorImagePoint(rightWristPoint.X, rightWristPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftWristColorPoint = depth.MapToColorImagePoint(leftWristDepthPoint.X, leftWristDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint rightElbowColorPoint = depth.MapToColorImagePoint(rightElbowPoint.X, rightElbowPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftElbowColorPoint = depth.MapToColorImagePoint(leftElbowDepthPoint.X, leftElbowDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint rightShoulderColorPoint = depth.MapToColorImagePoint(rightShoulderPoint.X, rightShoulderPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftShoulderColorPoint = depth.MapToColorImagePoint(leftSholderDepthPoint.X, leftSholderDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint rightAnkleColorPoint = depth.MapToColorImagePoint(rightAnkleDepthPoint.X, rightAnkleDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftAnkleColorPoint = depth.MapToColorImagePoint(leftAnkleDepthPoint.X, leftAnkleDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint rightKneeColorPoint = depth.MapToColorImagePoint(rightKneePoint.X, rightKneePoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftKneeColorPoint = depth.MapToColorImagePoint(leftKneeDepthPoint.X, leftKneeDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint rightHipColorPoint = depth.MapToColorImagePoint(rightHipPoint.X, rightHipPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
-                ColorImagePoint leftHipColorPoint = depth.MapToColorImagePoint(leftHipDepthPoint.X, leftHipDepthPoint.Y, ColorImageFormat.RgbResolution640x480Fps30);
+                ColorImagePoint[] colorPoint = new ColorImagePoint[jointsTracked.Count()];
+
+                for (int i = 0; i < jointsTracked.Count(); i++)
+                    colorPoint[i] = depth.MapToColorImagePoint(depthPoints[i].X, depthPoints[i].Y, ColorImageFormat.RgbResolution640x480Fps30);
+
 
 
                 //Set location
-                CameraPosition(wristRight, rightWristColorPoint);
-                CameraPosition(wristLeft, leftWristColorPoint);
-                CameraPosition(elbowRight, rightElbowColorPoint);
-                CameraPosition(elbowLeft, leftElbowColorPoint);
-                CameraPosition(shoulderRight, rightShoulderColorPoint);
-                CameraPosition(shoulderLeft , leftShoulderColorPoint);
-                CameraPosition(ankleRight, rightAnkleColorPoint);
-                CameraPosition(ankleLeft, leftAnkleColorPoint);
-                CameraPosition(kneeRight, rightKneeColorPoint);
-                CameraPosition(kneeLeft, leftKneeColorPoint);
-                CameraPosition(hipRight, rightHipColorPoint);
-                CameraPosition(hipLeft, leftHipColorPoint);
+
+                int j = 0;
+                CameraPosition(wristRight, colorPoint[j++]);
+                CameraPosition(wristLeft, colorPoint[j++]);
+                CameraPosition(elbowRight, colorPoint[j++]);
+                CameraPosition(elbowLeft, colorPoint[j++]);
+                CameraPosition(shoulderRight, colorPoint[j++]);
+                CameraPosition(shoulderLeft, colorPoint[j++]);
+                CameraPosition(ankleRight, colorPoint[j++]);
+                CameraPosition(ankleLeft, colorPoint[j++]);
+                CameraPosition(kneeRight, colorPoint[j++]);
+                CameraPosition(kneeLeft, colorPoint[j++]);
+                CameraPosition(hipRight, colorPoint[j++]);
+                CameraPosition(hipLeft, colorPoint[j++]);
             }
         }
 
@@ -669,9 +585,7 @@ namespace VirtualSifu
                 for (int i = 0; i < joints.Length; i++)
                     if (joints[i].Equals(joint))
                         return data[i];
-                    else
-                        return data[0];
-                return data[0];
+                return null;
             }
 
         }
