@@ -46,6 +46,9 @@ namespace VirtualSifu
         StreamFileReader masterData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS PART NEEDS TO BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         //StreamFileReader studentData; //= new StreamFileReader("C:\\Users\\Shadow\\Desktop\\motiondata.txt"); //NOTE THIS SHOULD BE RE-DIRECTED AFTER MOTION DATA IS SAVED
         DTW dtw = new DTW();
+        DTW2 dt2 = new DTW2();
+        DTW3 dt3 = new DTW3();
+
         double threshold = 1.0; //dummy value
         int startFrame = 0;
         ProfileData studentData;
@@ -118,7 +121,7 @@ namespace VirtualSifu
         //this one will instead return an array containing DTW information for each joint (this is to save memory and lines of code later)
         //startFrame is global [i planned to make it static, but can't be bothered right now] so that we can keep track of which frame we're at
         //haven't tried this one out yet, so i dont know if it'll work. It's just a concept idea for now
-        private ArrayList runDTW2()
+        private ArrayList runDTW()
         {
             int numFrames = 30;
 
@@ -143,6 +146,55 @@ namespace VirtualSifu
             return jData;
         }
 
+        private ArrayList runDTW2()
+        {
+            int numFrames = 30;
+
+            ArrayList jData = new ArrayList();
+            foreach (String joint in jointsTracked)
+            {
+                ArrayList masterList = masterData.getJointArray(joint);
+
+                ArrayList studentList = studentData.Get(joint);
+                int size = masterList.Count;
+                if (startFrame + numFrames > size)
+                {
+                    numFrames = size - startFrame;
+                }
+
+                double val = dt2.DTWDistance(masterList.GetRange(startFrame, numFrames), studentList.GetRange(startFrame, numFrames));
+                jData.Add(val);
+
+            }
+            startFrame += numFrames;
+
+            return jData;
+        }
+
+        private ArrayList runDTW3()
+        {
+            int numFrames = 30;
+
+            ArrayList jData = new ArrayList();
+            foreach (String joint in jointsTracked)
+            {
+                ArrayList masterList = masterData.getJointArray(joint);
+
+                ArrayList studentList = studentData.Get(joint);
+                int size = masterList.Count;
+                if (startFrame + numFrames > size)
+                {
+                    numFrames = size - startFrame;
+                }
+
+                double val = dt3.DTWDistance(masterList.GetRange(startFrame, numFrames), studentList.GetRange(startFrame, numFrames));
+                jData.Add(val);
+
+            }
+            startFrame += numFrames;
+
+            return jData;
+        }
         private OrderedDictionary getJointDict()
         {
             OrderedDictionary jointDict = new OrderedDictionary();
@@ -240,7 +292,7 @@ namespace VirtualSifu
                                         ((ArrayList)studentData.Get(joint)).Insert(playbackFrameNumber % 30, new JointData(studentPoint.X, studentPoint.Y, studentPoint.Z));
                                     }
 
-
+                                    ArrayList dtwData = new ArrayList();
                                    
 
                                     if (1 == 1)
@@ -250,7 +302,7 @@ namespace VirtualSifu
                                         {
                                             //run DTW for each joint
 
-                                            ArrayList dtwData = runDTW2();
+                                             dtwData = runDTW3();
                                             colorJoint(ankleRight, (double)dtwData[0]);
                                             colorJoint(ankleLeft, (double)dtwData[1]);
                                             colorJoint(kneeRight, (double)dtwData[2]);
@@ -272,10 +324,11 @@ namespace VirtualSifu
 
 
                                         }
+
                                     }
 
 
-                                    ScalePosition(wristRight, skeleton.Joints[JointType.WristLeft]);
+                                    ScalePosition(wristRight, skeleton.Joints[JointType.WristRight]);
                                     ScalePosition(wristLeft, skeleton.Joints[JointType.WristLeft]);
                                     ScalePosition(elbowRight, skeleton.Joints[JointType.ElbowRight]);
                                     ScalePosition(elbowLeft, skeleton.Joints[JointType.ElbowLeft]);
@@ -356,12 +409,12 @@ namespace VirtualSifu
 
         void colorJoint(Ellipse ellipse, double accuracy)
         {
-            if (accuracy > 25)
+           if (accuracy > 24)
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
             else if (accuracy > 12 )
                 ellipse.Fill = new SolidColorBrush(Colors.Yellow);
             else
-                ellipse.Fill = new SolidColorBrush(Colors.Green);
+                ellipse.Fill = new SolidColorBrush(Colors.Green); 
 
         }
         void markAtPoint(ColorImagePoint p, Bitmap bmp)
@@ -507,22 +560,22 @@ namespace VirtualSifu
                     colorPoint[i] = depth.MapToColorImagePoint(depthPoints[i].X, depthPoints[i].Y, ColorImageFormat.RgbResolution640x480Fps30);
 
 
-
+                
                 //Set location
 
                 int j = 0;
-                CameraPosition(wristRight, colorPoint[j++]);
-                CameraPosition(wristLeft, colorPoint[j++]);
-                CameraPosition(elbowRight, colorPoint[j++]);
-                CameraPosition(elbowLeft, colorPoint[j++]);
-                CameraPosition(shoulderRight, colorPoint[j++]);
-                CameraPosition(shoulderLeft, colorPoint[j++]);
                 CameraPosition(ankleRight, colorPoint[j++]);
                 CameraPosition(ankleLeft, colorPoint[j++]);
                 CameraPosition(kneeRight, colorPoint[j++]);
                 CameraPosition(kneeLeft, colorPoint[j++]);
                 CameraPosition(hipRight, colorPoint[j++]);
                 CameraPosition(hipLeft, colorPoint[j++]);
+                CameraPosition(shoulderRight, colorPoint[j++]);
+                CameraPosition(shoulderLeft, colorPoint[j++]);
+                CameraPosition(elbowRight, colorPoint[j++]);
+                CameraPosition(elbowLeft, colorPoint[j++]);
+                CameraPosition(wristRight, colorPoint[j++]);
+                CameraPosition(wristLeft, colorPoint[j++]);
             }
         }
 
