@@ -17,6 +17,8 @@ using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Kinect;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace VirtualSifu
 {
@@ -25,6 +27,52 @@ namespace VirtualSifu
     /// </summary>
     public partial class MainWindow : Window
     {
+        struct MARGINS
+        {
+            public MARGINS(Thickness t)
+            {
+                Left = 0;
+                Right = 0;
+                Top = 0;
+                Bottom = 100;
+            }
+            public int Left;
+            public int Right;
+            public int Top;
+            public int Bottom;
+        }
+
+        [DllImport("dwmapi.dll", PreserveSig = false)]
+        static extern void DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
+
+        [DllImport("dwmapi.dll", PreserveSig = false)]
+        static extern bool DwmIsCompositionEnabled();
+
+        private void MainWindow_OnSourceInitialized(object sender, EventArgs e)
+        {
+            // This can't be done any earlier than the SourceInitialized event:
+            ExtendGlassFrame(this, new Thickness(-1));
+        }
+
+        public static bool ExtendGlassFrame(Window window, Thickness margin)
+        {
+            if (!DwmIsCompositionEnabled())
+            {
+                window.Background = System.Windows.Media.Brushes.WhiteSmoke;
+                return false;
+            }
+            IntPtr hwnd = new WindowInteropHelper(window).Handle;
+            if (hwnd == IntPtr.Zero)
+                throw new InvalidOperationException("The Window must be shown before extending glass.");
+
+            // Set the background to transparent from both the WPF and Win32 perspectives
+            window.Background = System.Windows.Media.Brushes.Transparent;
+            HwndSource.FromHwnd(hwnd).CompositionTarget.BackgroundColor = Colors.Transparent;
+
+            MARGINS margins = new MARGINS(margin);
+            DwmExtendFrameIntoClientArea(hwnd, ref margins);
+            return true;
+        }
         bool recordSet = false;
         ArrayList recordBuffer = new ArrayList();
         StreamWriter writer;
@@ -647,6 +695,11 @@ namespace VirtualSifu
                         return data[i];
                 return null;
             }
+        }
+
+        private void clearText(object sender, RoutedEventArgs e)
+        {
+            FileText.Text = "";
         }
     }
 
