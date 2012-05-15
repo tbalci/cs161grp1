@@ -17,8 +17,7 @@ using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Kinect;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
+using System.Speech.Synthesis;
 
 namespace VirtualSifu
 {
@@ -27,52 +26,6 @@ namespace VirtualSifu
     /// </summary>
     public partial class MainWindow : Window
     {
-        struct MARGINS
-        {
-            public MARGINS(Thickness t)
-            {
-                Left = 0;
-                Right = 0;
-                Top = 0;
-                Bottom = 100;
-            }
-            public int Left;
-            public int Right;
-            public int Top;
-            public int Bottom;
-        }
-
-        [DllImport("dwmapi.dll", PreserveSig = false)]
-        static extern void DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
-
-        [DllImport("dwmapi.dll", PreserveSig = false)]
-        static extern bool DwmIsCompositionEnabled();
-
-        private void MainWindow_OnSourceInitialized(object sender, EventArgs e)
-        {
-            // This can't be done any earlier than the SourceInitialized event:
-            ExtendGlassFrame(this, new Thickness(-1));
-        }
-
-        public static bool ExtendGlassFrame(Window window, Thickness margin)
-        {
-            if (!DwmIsCompositionEnabled())
-            {
-                window.Background = System.Windows.Media.Brushes.WhiteSmoke;
-                return false;
-            }
-            IntPtr hwnd = new WindowInteropHelper(window).Handle;
-            if (hwnd == IntPtr.Zero)
-                throw new InvalidOperationException("The Window must be shown before extending glass.");
-
-            // Set the background to transparent from both the WPF and Win32 perspectives
-            window.Background = System.Windows.Media.Brushes.Transparent;
-            HwndSource.FromHwnd(hwnd).CompositionTarget.BackgroundColor = Colors.Transparent;
-
-            MARGINS margins = new MARGINS(margin);
-            DwmExtendFrameIntoClientArea(hwnd, ref margins);
-            return true;
-        }
         bool recordSet = false;
         ArrayList recordBuffer = new ArrayList();
         StreamWriter writer;
@@ -82,6 +35,8 @@ namespace VirtualSifu
         bool playback = false;
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
+        SpeechSynthesizer speech = new SpeechSynthesizer();
+        long streamLength = 0;
 
         String[] jointsTracked = { "AnkleRight", "AnkleLeft", "KneeRight", "KneeLeft", "HipRight", "HipLeft", "ShoulderRight", "ShoulderLeft", "ElbowRight", "ElbowLeft", "WristRight", "WristLeft" };
 
@@ -100,7 +55,10 @@ namespace VirtualSifu
         double threshold = 1.0; //dummy value
         int startFrame = 0;
         ProfileData studentData;
-        
+        double totalCorrespondence = 0;
+        double totalCounted = 0;
+        const int totalJointsTracked = 12;
+        double playerPercentage = 0;
 
         /*
         JointData[] studentLeftWristData = new JointData[30];
@@ -302,11 +260,12 @@ namespace VirtualSifu
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
 
-
+            
             if (playback == true)
             {
                 using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
                 {
+
                     if (colorFrame == null)
                     {
                         return;
@@ -316,6 +275,77 @@ namespace VirtualSifu
                     dataStream.Read(pixels, 0, colorFrame.PixelDataLength);
                     int stride = colorFrame.Width * 4;
                     masterView.Source = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride);
+                    
+
+                    if (totalCounted != 0)
+                    {
+                        String playerFeedback;
+                        if (playbackFrameNumber % 30 == 0)
+                        {
+                            playerPercentage = Math.Round((totalCorrespondence / totalCounted) * 100);
+                            if (playerPercentage < 20)
+                            {
+                                playerFeedback = "You're terrible";
+                            }
+                            else if (playerPercentage < 40)
+                            {
+                                playerFeedback = "You could do better";
+                            }
+                            else if (playerPercentage < 60)
+                            {
+                                playerFeedback = "Getting there";
+                            }
+                            else if (playerPercentage < 80)
+                            {
+                                playerFeedback = "Not bad";
+                            }
+                            else if (playerPercentage < 100)
+                            {
+                                playerFeedback = "Great job!";
+                            }
+                            else
+                            {
+                                playerFeedback = "Are you even real?";
+                            }
+                            /*
+                            else
+                            {
+                                playerFeedback = playerPercentage.ToString() + "%";
+                            }
+                            */
+
+                            // update display
+                            if (!textBlock3.Text.Equals(playerFeedback))
+                                //speech.Speak(playerFeedback);
+                            textBlock3.Text = playerFeedback;
+                            textPercentage.Text = playerPercentage.ToString() + "%";
+                        }
+                    }
+
+                    if (dataStream.Position == streamLength)
+                    {
+                        playback = false;
+                        dataStream.Close();
+                        // swap image
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play.png", UriKind.Relative);
+                        bitmap.EndInit();
+                        image4.Stretch = Stretch.Fill;
+                        image4.Source = bitmap;
+
+                        // undim record button
+                        bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri("/VirtualSifu;component/Images/record.png", UriKind.Relative);
+                        bitmap.EndInit();
+                        image2.Stretch = Stretch.Fill;
+                        image2.Source = bitmap;
+
+                        
+                        masterView.Source = null;
+                        changeVisibility(System.Windows.Visibility.Hidden);
+                    }
 
 
 
@@ -351,6 +381,7 @@ namespace VirtualSifu
                                             //run DTW for each joint
 
                                              dtwData = runDTW3();
+                                            Console.Write((double)dtwData[0] + "\n");
                                             colorJoint(ankleRight, (double)dtwData[0]);
                                             colorJoint(ankleLeft, (double)dtwData[1]);
                                             colorJoint(kneeRight, (double)dtwData[2]);
@@ -457,13 +488,16 @@ namespace VirtualSifu
 
         void colorJoint(Ellipse ellipse, double accuracy)
         {
-           if (accuracy > 24)
+            totalCounted++;
+           if (accuracy > 12)
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
-            else if (accuracy > 12 )
-                ellipse.Fill = new SolidColorBrush(Colors.Yellow);
-            else
-                ellipse.Fill = new SolidColorBrush(Colors.Green); 
-
+           else if (accuracy > 6)
+               ellipse.Fill = new SolidColorBrush(Colors.Yellow);
+           else
+           {
+               ellipse.Fill = new SolidColorBrush(Colors.Green);
+               totalCorrespondence += 1;
+           }
         }
         void markAtPoint(ColorImagePoint p, Bitmap bmp)
         {
@@ -499,51 +533,76 @@ namespace VirtualSifu
             }
         }
 
+
+        // record start/stop button
         private void image2_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-            //if we just pressed the button to record
-            if (!recordSet)
+            if (!playback)
             {
-                // begin writing
-                writer = new StreamWriter(FileText.Text + ".txt");
-                dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
 
-                //masterData = new StreamFileReader(FileText.Text + ".txt");
+                //if we just pressed the button to record
+                if (!recordSet)
+                {
+                    // begin writing
+                    writer = new StreamWriter(FileText.Text + ".txt");
+                    dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
+                    
+
+                    //masterData = new StreamFileReader(FileText.Text + ".txt");
 
 
-                
 
-                // swap image to stop.png
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri("/VirtualSifu;component/Images/stop.png", UriKind.Relative);
-                bitmap.EndInit();
-                image2.Stretch = Stretch.Fill;
-                image2.Source = bitmap;
 
-                // set state
-                recordSet = true;
+                    // swap image to stop.png
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/stop.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image2.Stretch = Stretch.Fill;
+                    image2.Source = bitmap;
+
+                    // set state
+                    recordSet = true;
+
+
+                    // dim out playback button
+                    bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play_disabled.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image4.Stretch = Stretch.Fill;
+                    image4.Source = bitmap;
+                }
+                //if we just pressed the button to stop recording
+                else
+                {
+                    // stop writing
+                    writer.Close();
+                    dataStream.Close();
+
+                    // swap image to play.png
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/record.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image2.Stretch = Stretch.Fill;
+                    image2.Source = bitmap;
+
+                    // set state
+                    recordSet = false;
+
+
+                    // undim playback button
+                    bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image4.Stretch = Stretch.Fill;
+                    image4.Source = bitmap;
+                }
+
             }
-            //if we just pressed the button to stop recording
-            else
-            {
-                // stop writing
-                writer.Close();
-                dataStream.Close();
-
-                // swap image to play.png
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play.png", UriKind.Relative);
-                bitmap.EndInit();
-                image2.Stretch = Stretch.Fill;
-                image2.Source = bitmap;
-
-                // set state
-                recordSet = false;
-            }
-
             
         }
 
@@ -554,6 +613,7 @@ namespace VirtualSifu
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
+            totalCorrespondence = 0;
             startFrame = 0;
             playback = true;
             masterData = new StreamFileReader(FileText.Text + ".txt");
@@ -697,9 +757,70 @@ namespace VirtualSifu
             }
         }
 
-        private void clearText(object sender, RoutedEventArgs e)
+        private void changeVisibility(Visibility state)
         {
-            FileText.Text = "";
+            foreach (Ellipse circles in MainCanvas.Children)
+            {
+                circles.Visibility = state;
+            }
+        }
+
+        // playback start/stop button
+        private void image4_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!recordSet)
+            {
+                if (!playback)
+                {
+                    changeVisibility(System.Windows.Visibility.Visible);
+
+                    totalCorrespondence = 0;
+                    startFrame = 0;
+                    playback = true;
+                    masterData = new StreamFileReader(FileText.Text + ".txt");
+                    dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
+                    streamLength = dataStream.Length;
+
+                    // swap image
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/stop.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image4.Stretch = Stretch.Fill;
+                    image4.Source = bitmap;
+
+                    // also dim out record button
+                    bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/record_disabled.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image2.Stretch = Stretch.Fill;
+                    image2.Source = bitmap;
+                }
+                else
+                {
+                    playback = false;
+                    dataStream.Close();
+
+                    // swap image
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/play.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image4.Stretch = Stretch.Fill;
+                    image4.Source = bitmap;
+
+                    // undim record button
+                    bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri("/VirtualSifu;component/Images/record.png", UriKind.Relative);
+                    bitmap.EndInit();
+                    image2.Stretch = Stretch.Fill;
+                    image2.Source = bitmap;
+                }
+            }
+
+
         }
     }
 
