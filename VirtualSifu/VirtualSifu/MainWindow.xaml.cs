@@ -52,7 +52,6 @@ namespace VirtualSifu
         DTW2 dt2 = new DTW2();
         DTW3 dt3 = new DTW3();
 
-        double threshold = 1.0; //dummy value
         int startFrame = 0;
         ProfileData studentData;
         double totalCorrespondence = 0;
@@ -611,14 +610,15 @@ namespace VirtualSifu
 
         }
 
-        private void Start_Click(object sender, RoutedEventArgs e)
-        {
-            totalCorrespondence = 0;
-            startFrame = 0;
-            playback = true;
-            masterData = new StreamFileReader(FileText.Text + ".txt");
-            dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
-        }
+        //private void Start_Click(object sender, RoutedEventArgs e)
+        //{
+        //    totalCounted = 0;
+        //    totalCorrespondence = 0;
+        //    startFrame = 0;
+        //    playback = true;
+        //    masterData = new StreamFileReader(FileText.Text + ".txt");
+        //    dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
+        //}
 
         Skeleton GetFirstSkeleton(AllFramesReadyEventArgs e)
         {
@@ -773,7 +773,7 @@ namespace VirtualSifu
                 if (!playback)
                 {
                     changeVisibility(System.Windows.Visibility.Visible);
-
+                    totalCounted = 0;
                     totalCorrespondence = 0;
                     startFrame = 0;
                     playback = true;
