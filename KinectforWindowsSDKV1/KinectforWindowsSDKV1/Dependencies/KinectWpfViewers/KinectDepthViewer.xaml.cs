@@ -25,7 +25,8 @@ namespace Microsoft.Samples.Kinect.WpfViewers
         private const int RedIndex = 2;
         private const int GreenIndex = 1;
         private const int BlueIndex = 0;
-        private static readonly int Bgr32BytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel + 7) / 8;
+        private const int AlphaIndex = 3;
+        private static readonly int Bgra32BytesPerPixel = (PixelFormats.Bgra32.BitsPerPixel + 7) / 8;
 
         private DepthImageFormat lastImageFormat;
         private short[] pixelData;
@@ -70,7 +71,7 @@ namespace Microsoft.Samples.Kinect.WpfViewers
                     if (haveNewFormat)
                     {
                         this.pixelData = new short[imageFrame.PixelDataLength];
-                        this.depthFrame32 = new byte[imageFrame.Width * imageFrame.Height * Bgr32BytesPerPixel];
+                        this.depthFrame32 = new byte[imageFrame.Width * imageFrame.Height * Bgra32BytesPerPixel];
                     }
 
                     imageFrame.CopyPixelDataTo(this.pixelData);
@@ -86,7 +87,7 @@ namespace Microsoft.Samples.Kinect.WpfViewers
                             imageFrame.Height, 
                             96,  // DpiX
                             96,  // DpiY
-                            PixelFormats.Bgr32, 
+                            PixelFormats.Bgra32, 
                             null);
 
                         this.kinectDepthImage.Source = this.outputBitmap;
@@ -95,7 +96,7 @@ namespace Microsoft.Samples.Kinect.WpfViewers
                     this.outputBitmap.WritePixels(
                         new Int32Rect(0, 0, imageFrame.Width, imageFrame.Height), 
                         convertedDepthBits,
-                        imageFrame.Width * Bgr32BytesPerPixel,
+                        imageFrame.Width * Bgra32BytesPerPixel,
                         0);
 
                     this.lastImageFormat = imageFrame.Format;
@@ -125,34 +126,98 @@ namespace Microsoft.Samples.Kinect.WpfViewers
                 // for display (we disregard information in most significant bit)
                 byte intensity = (byte)(~(realDepth >> 4));
 
-                if (player == 0 && realDepth == 0)
+                if (player > 0)
                 {
-                    // white 
-                    this.depthFrame32[i32 + RedIndex] = 255;
-                    this.depthFrame32[i32 + GreenIndex] = 255;
-                    this.depthFrame32[i32 + BlueIndex] = 255;
-                }
-                else if (player == 0 && realDepth == tooFarDepth)
-                {
-                    // dark purple
-                    this.depthFrame32[i32 + RedIndex] = 66;
-                    this.depthFrame32[i32 + GreenIndex] = 0;
-                    this.depthFrame32[i32 + BlueIndex] = 66;
-                }
-                else if (player == 0 && realDepth == unknownDepth)
-                {
-                    // dark brown
-                    this.depthFrame32[i32 + RedIndex] = 66;
-                    this.depthFrame32[i32 + GreenIndex] = 66;
-                    this.depthFrame32[i32 + BlueIndex] = 33;
+                    if (realDepth == 0)
+                    {
+                        // white 
+                        this.depthFrame32[i32 + RedIndex] = 0;
+                        this.depthFrame32[i32 + GreenIndex] = 0;
+                        this.depthFrame32[i32 + BlueIndex] = 0;
+                        this.depthFrame32[i32 + AlphaIndex] = 0;
+                    }
+                    else if (realDepth == tooFarDepth)
+                    {
+                        // dark purple
+                        this.depthFrame32[i32 + RedIndex] = 0;
+                        this.depthFrame32[i32 + GreenIndex] = 0;
+                        this.depthFrame32[i32 + BlueIndex] = 0;
+                        this.depthFrame32[i32 + AlphaIndex] = 0;
+                    }
+                    else if (realDepth == unknownDepth)
+                    {
+                        // dark brown
+                        this.depthFrame32[i32 + RedIndex] = 0;
+                        this.depthFrame32[i32 + GreenIndex] = 0;
+                        this.depthFrame32[i32 + BlueIndex] = 0;
+                        this.depthFrame32[i32 + AlphaIndex] = 0;
+                    }
+                    else if (realDepth == tooNearDepth)
+                    {
+                        // dark brown
+                        this.depthFrame32[i32 + RedIndex] = 0;
+                        this.depthFrame32[i32 + GreenIndex] = 0;
+                        this.depthFrame32[i32 + BlueIndex] = 0;
+                        this.depthFrame32[i32 + AlphaIndex] = 0;
+                    }
+                    else
+                    {
+                        // tint the intensity by dividing by per-player values
+                        this.depthFrame32[i32 + RedIndex] = (byte)(intensity >> IntensityShiftByPlayerR[player]);
+                        this.depthFrame32[i32 + GreenIndex] = (byte)(intensity >> IntensityShiftByPlayerG[player]);
+                        this.depthFrame32[i32 + BlueIndex] = (byte)(intensity >> IntensityShiftByPlayerB[player]);
+                        this.depthFrame32[i32 + AlphaIndex] = 125;
+                    }
                 }
                 else
                 {
-                    // tint the intensity by dividing by per-player values
-                    this.depthFrame32[i32 + RedIndex] = (byte)(intensity >> IntensityShiftByPlayerR[player]);
-                    this.depthFrame32[i32 + GreenIndex] = (byte)(intensity >> IntensityShiftByPlayerG[player]);
-                    this.depthFrame32[i32 + BlueIndex] = (byte)(intensity >> IntensityShiftByPlayerB[player]);
+                    this.depthFrame32[i32 + RedIndex] = 0;
+                    this.depthFrame32[i32 + GreenIndex] = 0;
+                    this.depthFrame32[i32 + BlueIndex] = 0;
+                    this.depthFrame32[i32 + AlphaIndex] = 0;
                 }
+                
+
+                //if (player == 0 && realDepth == 0)
+                //{
+                //    // white 
+                //    this.depthFrame32[i32 + RedIndex] = 0;
+                //    this.depthFrame32[i32 + GreenIndex] = 0;
+                //    this.depthFrame32[i32 + BlueIndex] = 0;
+                //    this.depthFrame32[i32 + AlphaIndex] = 0;
+                //}
+                //else if (player == 0 && realDepth == tooFarDepth)
+                //{
+                //    // dark purple
+                //    this.depthFrame32[i32 + RedIndex] = 0;
+                //    this.depthFrame32[i32 + GreenIndex] = 0;
+                //    this.depthFrame32[i32 + BlueIndex] = 0;
+                //    this.depthFrame32[i32 + AlphaIndex] = 0;
+                //}
+                //else if (player == 0 && realDepth == unknownDepth)
+                //{
+                //    // dark brown
+                //    this.depthFrame32[i32 + RedIndex] = 0;
+                //    this.depthFrame32[i32 + GreenIndex] = 0;
+                //    this.depthFrame32[i32 + BlueIndex] = 0;
+                //    this.depthFrame32[i32 + AlphaIndex] = 0;
+                //}
+                //else if (player == 0 && realDepth == tooNearDepth)
+                //{
+                //    // dark brown
+                //    this.depthFrame32[i32 + RedIndex] = 0;
+                //    this.depthFrame32[i32 + GreenIndex] = 0;
+                //    this.depthFrame32[i32 + BlueIndex] = 0;
+                //    this.depthFrame32[i32 + AlphaIndex] = 0;
+                //}
+                //else if (player > 0)
+                //{
+                //    // tint the intensity by dividing by per-player values
+                //    this.depthFrame32[i32 + RedIndex] = (byte)(intensity >> IntensityShiftByPlayerR[player]);
+                //    this.depthFrame32[i32 + GreenIndex] = (byte)(intensity >> IntensityShiftByPlayerG[player]);
+                //    this.depthFrame32[i32 + BlueIndex] = (byte)(intensity >> IntensityShiftByPlayerB[player]);
+                //    this.depthFrame32[i32 + AlphaIndex] = 255;
+                //}
 
             }
 
