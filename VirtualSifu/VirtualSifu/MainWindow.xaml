@@ -30,8 +30,10 @@
         </Canvas>
         <my:KinectDepthViewer HorizontalAlignment="Left" Margin="296,131,322,109" Name="kinectColorViewer1" VerticalAlignment="Top" Width="640" Height="480" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
         <TextBlock Height="60" HorizontalAlignment="Left" Margin="296,617,0,0" Name="textBlock3" Text="" VerticalAlignment="Top" Width="640" TextAlignment="Center" FontSize="40" />
-        <Image Height="48" HorizontalAlignment="Left" Margin="59,419,0,0" Name="image4" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image4_MouseDown" />
+        <Image Height="48" HorizontalAlignment="Left" Margin="59,419,0,0" Name="image4" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image4_MouseDown" Visibility="Visible" IsHitTestVisible="False" />
         <TextBlock Height="60" HorizontalAlignment="Left" Margin="972,617,0,0" Name="textPercentage" Text="" VerticalAlignment="Top" Width="200" FontSize="40" />
+        <ComboBox Height="27" HorizontalAlignment="Left" Margin="59,511,0,0" Name="mDataComboBox" VerticalAlignment="Top" Width="120" SelectionChanged="mDataComboBox_SelectionChanged" />
+        <Button Content="Browse" Height="25" HorizontalAlignment="Left" Margin="187,513,0,0" Name="button1" VerticalAlignment="Top" Width="44" Click="button1_Click" />
     </Grid>
 
 </Window>

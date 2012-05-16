@@ -15,12 +15,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.Windows.Forms;
 using Microsoft.Kinect;
 using System.Drawing;
 using System.Speech.Synthesis;
 
 namespace VirtualSifu
 {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -777,8 +779,10 @@ namespace VirtualSifu
                     totalCorrespondence = 0;
                     startFrame = 0;
                     playback = true;
-                    masterData = new StreamFileReader(FileText.Text + ".txt");
-                    dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
+                    //statement under this: value changed from FileText.Text to mDataComboBox.SelectedValue
+                    masterData = new StreamFileReader(mDataComboBox.SelectedValue + ".txt");
+                    //statement under this: value changed from FileText.Text to mDataComboBox.SelectedValue
+                    dataStream = new FileStream(mDataComboBox.SelectedValue + ".dat", FileMode.Open, FileAccess.Read);
                     streamLength = dataStream.Length;
 
                     // swap image
@@ -820,9 +824,94 @@ namespace VirtualSifu
                 }
             }
 
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            //Creating new Folder Browsing
+            FolderBrowserDialog folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            DialogResult result;
+            String folderName = "";
+
+            //If no filepath is selected .. (and our combobox has no data) then force them to pick a folder
+            while (folderName.Equals(""))
+            {           
+                //This brings up the actual browsing window
+                result = folderBrowserDialog1.ShowDialog();
+               //this takes the selected folderpath
+                folderName = folderBrowserDialog1.SelectedPath;
+                //If our combobox already has data, user may have accidentally clicked browse
+                if (!mDataComboBox.Items.IsEmpty && folderName.Equals(""))
+                    return;
+            }
+
+            //Gets the files within the selected directory
+            String[] filePaths = Directory.GetFiles(@folderName);
+
+            //arraylist to hold filenames
+            ArrayList fileNames = new ArrayList();
+
+            //stripping our filepaths to get only filenames
+            foreach (String s in filePaths)
+            {
+                String[] split = s.Split('\\');
+                fileNames.Add(split[split.Length-1]);
+            }
+
+            //getting the actual filenames individually and adding them to a list -- no repeats
+            ArrayList indNames = new ArrayList();
+            foreach (String s in fileNames)
+            {
+                String[] split = s.Split('.');
+                if (!indNames.Contains(split[0]))
+                {
+                    indNames.Add(split[0]);
+                }
+            }
+
+            //check each file to see if a .dat and a .txt exist for it
+            //if so, add it to our dropdown box, if not. hah
+            ArrayList filesToAdd = new ArrayList();
+            foreach (String s in indNames)
+            {
+                String v1 = s + ".dat";
+                String v2 = s + ".txt";
+                if (fileNames.Contains(v1) && fileNames.Contains(v2))
+                {
+                    filesToAdd.Add(s);
+                }
+                //NOTE: mDataComboBox.SelectedValue gets currently selected ComboBox value
+            }
+
+            //added a check to actually kill off one of my own bugs.. however im leaving some exception checking code just in case someone circumvents it
+            if (filesToAdd.Count > 0)
+            {
+                //Clear out any pre-existing files -- or should we do this a different way?
+                mDataComboBox.Items.Clear();
+                foreach (String s in filesToAdd)
+                {
+                    mDataComboBox.Items.Add(s);
+                }
+            }
+            else
+            {
+                //supposing user selects a directory with no usable data, we will automatically revert back to previous files.
+                DialogResult e1 = System.Windows.Forms.MessageBox.Show("Selected directory has no master data files.\nReverting to previous directory.", "No Master Data Available");
+            }
 
         }
+
+        private void mDataComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // deactivates the button if no data can be loaded
+            if (mDataComboBox.Items.IsEmpty)
+            {
+                image4.IsHitTestVisible = false;
+                return;
+            }
+            // activates the button if data can be loaded
+            if (!mDataComboBox.SelectedValue.Equals(""))
+                image4.IsHitTestVisible = true;
+        }
     }
-
-
 }
