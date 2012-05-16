@@ -7,9 +7,9 @@
         <Button Content="Set Tilt" Height="23" HorizontalAlignment="Left" Margin="851,60,0,0" Name="setTilt" VerticalAlignment="Top" Width="75" Click="setTilt_Click" />
         <Slider Height="94" HorizontalAlignment="Left" Margin="942,25,0,0" Name="TiltSlider" VerticalAlignment="Top" Width="24" Orientation="Vertical" Maximum="27" Minimum="-27" ValueChanged="TiltSlider_ValueChanged" />
         <Label Content="0" Height="36" HorizontalAlignment="Left" Margin="972,52,0,0" Name="TiltAngle" VerticalAlignment="Top" FontWeight="Bold" Width="45" FontSize="18" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="59,0,0,224" Name="FileText" VerticalAlignment="Bottom" Width="120" Text="Enter filename" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="90,0,0,360" Name="FileText" VerticalAlignment="Bottom" Width="120" Text="" />
         <TextBlock Height="50" HorizontalAlignment="Right" Margin="0,69,322,0" Name="textBlock1" Text="Virtual Trainer" VerticalAlignment="Top" FontSize="40" Width="640" />
-        <Image Height="48" HorizontalAlignment="Left" Margin="125,419,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/record.png" MouseDown="image2_MouseDown" ImageFailed="image2_ImageFailed" />
+        <Image Height="48" HorizontalAlignment="Left" Margin="217,322,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/record.png" MouseDown="image2_MouseDown" ImageFailed="image2_ImageFailed" />
         <Image Height="720" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="1280" Source="/VirtualSifu;component/Images/background.png" Panel.ZIndex="-1" Margin="-8,-28,0,0" />
         <Image Height="150" HorizontalAlignment="Left" Name="image3" Stretch="Fill" VerticalAlignment="Top" Width="200" Source="/VirtualSifu;component/Images/runningman.png" Margin="76,25,0,0" />
         <Image Height="480" Name="masterView" Stretch="Fill" Width="640" Margin="296,131,322,109" />
@@ -30,10 +30,11 @@
         </Canvas>
         <my:KinectDepthViewer HorizontalAlignment="Left" Margin="296,131,322,109" Name="kinectColorViewer1" VerticalAlignment="Top" Width="640" Height="480" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
         <TextBlock Height="60" HorizontalAlignment="Left" Margin="296,617,0,0" Name="textBlock3" Text="" VerticalAlignment="Top" Width="640" TextAlignment="Center" FontSize="40" />
-        <Image Height="48" HorizontalAlignment="Left" Margin="59,419,0,0" Name="image4" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image4_MouseDown" Visibility="Visible" IsHitTestVisible="False" />
+        <Image Height="48" HorizontalAlignment="Left" Margin="217,424,0,0" Name="image4" Stretch="Fill" VerticalAlignment="Top" Width="48" Source="/VirtualSifu;component/Images/play.png" MouseDown="image4_MouseDown" Visibility="Visible" IsHitTestVisible="False" />
         <TextBlock Height="60" HorizontalAlignment="Left" Margin="972,617,0,0" Name="textPercentage" Text="" VerticalAlignment="Top" Width="200" FontSize="40" />
-        <ComboBox Height="27" HorizontalAlignment="Left" Margin="59,511,0,0" Name="mDataComboBox" VerticalAlignment="Top" Width="120" SelectionChanged="mDataComboBox_SelectionChanged" />
-        <Button Content="Browse" Height="25" HorizontalAlignment="Left" Margin="187,513,0,0" Name="button1" VerticalAlignment="Top" Width="44" Click="button1_Click" />
+        <ComboBox Height="27" HorizontalAlignment="Left" Margin="90,435,0,0" Name="mDataComboBox" VerticalAlignment="Top" Width="120" SelectionChanged="mDataComboBox_SelectionChanged" />
+        <Button Content="Browse" Height="25" HorizontalAlignment="Left" Margin="90,468,0,0" Name="button1" VerticalAlignment="Top" Width="44" Click="button1_Click" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="31,337,0,0" Name="textBlock2" Text="File Name" VerticalAlignment="Top" />
     </Grid>
 
 </Window>
