@@ -581,6 +581,7 @@ namespace VirtualSifu
                     // stop writing
                     writer.Close();
                     dataStream.Close();
+                    mDataComboBox.Items.Add(FileText.Text);
 
                     // swap image to play.png
                     BitmapImage bitmap = new BitmapImage();
