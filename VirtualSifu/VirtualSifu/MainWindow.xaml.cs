@@ -975,7 +975,7 @@ namespace VirtualSifu
         private void mDataComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // deactivates the button if no data can be loaded
-            if (mDataComboBox.Items.IsEmpty)
+            if (mDataComboBox.SelectedValue.Equals(""))
             {
                 image4.IsHitTestVisible = false;
                 return;
