@@ -33,6 +33,7 @@ namespace VirtualSifu
         StreamWriter writer;
         FileStream dataStream;
         int frameNumber = 0;
+        int countdown = 0;
         int playbackFrameNumber = 0;
         bool playback = false;
         const int skeletonCount = 6;
@@ -60,21 +61,6 @@ namespace VirtualSifu
         double totalCounted = 0;
         const int totalJointsTracked = 12;
         double playerPercentage = 0;
-
-        /*
-        JointData[] studentLeftWristData = new JointData[30];
-        JointData[] studentRightWristData = new JointData[30];
-        JointData[] studentLeftElbowData = new JointData[30];
-        JointData[] studentRightElbowData = new JointData[30];
-        JointData[] studentLeftShoulderData = new JointData[30];
-        JointData[] studentRightShoulderData = new JointData[30];
-        JointData[] studentLeftAnkleData = new JointData[30];
-        JointData[] studentRightAnkleData = new JointData[30];
-        JointData[] studentLeftKneeData = new JointData[30];
-        JointData[] studentRightKneeData = new JointData[30];
-        JointData[] studentLeftHipData = new JointData[30];
-        JointData[] studentRightHipData = new JointData[30];
-        */
 
         ArrayList masterLeftWristData = new ArrayList();
         ArrayList masterRightWristData = new ArrayList();
@@ -232,6 +218,7 @@ namespace VirtualSifu
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             kinectSensorChooser1.KinectSensorChanged += new DependencyPropertyChangedEventHandler(kinectSensorChooser1_KinectSensorChanged);
+            refreshDropdown();
         }
 
         void kinectSensorChooser1_KinectSensorChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -260,6 +247,23 @@ namespace VirtualSifu
 
         void sensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
+            if ((playback || recordSet) && countdown < 90)
+            {
+                if (countdown == 0)
+                    Countdown.Text = "3";
+                else if (countdown == 30)
+                    Countdown.Text = "2";
+                else if (countdown == 60)
+                    Countdown.Text = "1";
+                countdown++;
+                return;
+            }
+            else
+            {
+                Countdown.Text = "";
+                if (playback)
+                    changeVisibility(System.Windows.Visibility.Visible);
+            }
 
             
             if (playback == true)
@@ -325,6 +329,7 @@ namespace VirtualSifu
 
                     if (dataStream.Position == streamLength)
                     {
+                        countdown = 0;
                         playback = false;
                         dataStream.Close();
                         // swap image
@@ -342,7 +347,6 @@ namespace VirtualSifu
                         bitmap.EndInit();
                         image2.Stretch = Stretch.Fill;
                         image2.Source = bitmap;
-
                         
                         masterView.Source = null;
                         changeVisibility(System.Windows.Visibility.Hidden);
@@ -578,6 +582,7 @@ namespace VirtualSifu
                 //if we just pressed the button to stop recording
                 else
                 {
+                    countdown = 0;
                     // stop writing
                     writer.Close();
                     dataStream.Close();
@@ -602,6 +607,10 @@ namespace VirtualSifu
                     bitmap.EndInit();
                     image4.Stretch = Stretch.Fill;
                     image4.Source = bitmap;
+
+                    masterView.Source = null;
+                    changeVisibility(System.Windows.Visibility.Hidden);
+                    refreshDropdown();
                 }
 
             }
@@ -775,7 +784,6 @@ namespace VirtualSifu
             {
                 if (!playback)
                 {
-                    changeVisibility(System.Windows.Visibility.Visible);
                     totalCounted = 0;
                     totalCorrespondence = 0;
                     startFrame = 0;
@@ -806,7 +814,7 @@ namespace VirtualSifu
                 {
                     playback = false;
                     dataStream.Close();
-
+                    countdown = 0;
                     // swap image
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -822,17 +830,20 @@ namespace VirtualSifu
                     bitmap.EndInit();
                     image2.Stretch = Stretch.Fill;
                     image2.Source = bitmap;
+
+                    masterView.Source = null;
+                    changeVisibility(System.Windows.Visibility.Hidden);
                 }
             }
 
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+       /* private void button1_Click(object sender, RoutedEventArgs e)
         {
             //Creating new Folder Browsing
             FolderBrowserDialog folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             DialogResult result;
-            String folderName = "";
+            String folderName = Directory.GetCurrentDirectory();
 
             //If no filepath is selected .. (and our combobox has no data) then force them to pick a folder
             while (folderName.Equals(""))
@@ -900,6 +911,65 @@ namespace VirtualSifu
                 DialogResult e1 = System.Windows.Forms.MessageBox.Show("Selected directory has no master data files.\nReverting to previous directory.", "No Master Data Available");
             }
 
+        } */
+
+
+        private void refreshDropdown()
+        {
+            String dir = Directory.GetCurrentDirectory();
+
+            //Gets the files within the selected directory
+            String[] filePaths = Directory.GetFiles(@dir);
+
+            //arraylist to hold filenames
+            ArrayList fileNames = new ArrayList();
+
+            //stripping our filepaths to get only filenames
+            foreach (String s in filePaths)
+            {
+                String[] split = s.Split('\\');
+                fileNames.Add(split[split.Length - 1]);
+            }
+
+            //getting the actual filenames individually and adding them to a list -- no repeats
+            ArrayList indNames = new ArrayList();
+            foreach (String s in fileNames)
+            {
+                String[] split = s.Split('.');
+                if (!indNames.Contains(split[0]))
+                {
+                    indNames.Add(split[0]);
+                }
+            }
+
+            //check each file to see if a .dat and a .txt exist for it
+            //if so, add it to our dropdown box, if not. hah
+            ArrayList filesToAdd = new ArrayList();
+            foreach (String s in indNames)
+            {
+                String v1 = s + ".dat";
+                String v2 = s + ".txt";
+                if (fileNames.Contains(v1) && fileNames.Contains(v2))
+                {
+                    filesToAdd.Add(s);
+                }
+                //NOTE: mDataComboBox.SelectedValue gets currently selected ComboBox value
+            }
+
+            //added a check to actually kill off one of my own bugs.. however im leaving some exception checking code just in case someone circumvents it
+            if (filesToAdd.Count > 0)
+            {
+                //Clear out any pre-existing files -- or should we do this a different way?
+                mDataComboBox.Items.Clear();
+                foreach (String s in filesToAdd)
+                {
+                    mDataComboBox.Items.Add(s);
+                }
+            }
+        }
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            refreshDropdown();
         }
 
         private void mDataComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
