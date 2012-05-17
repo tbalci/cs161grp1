@@ -87,33 +87,9 @@ namespace VirtualSifu
         //method to run DTW and return an [array] containing the DTW data.
         //This has been adapted from Gina's code
         //@param joint corresponds to the joint that you desire (see JointData.cs for full list of usable joints)
-       /* private ArrayList runDTW(String joint)
-        {
-            ArrayList masterList = masterData.getJointArray(joint); //Note: you better have defined masterData to something before running this part.
-            //ArrayList studentList = studentData.getJointArray(joint); // NOte: you better have defined studentData to something before running this part.
-            ArrayList jData = new ArrayList();
-            int numFrames = 6;
-            int start = 0;
-           // int size = studentList.Count;
-            double val = 0;
 
-            while (start < size)
-            {
-                if (start + numFrames >= size)
-                {   
-                    numFrames = size - start;
-                }
-                val = dtw.DTWDistance(masterList.GetRange(start, numFrames), studentList.GetRange(start, numFrames));
-                jData.Add(val);
-                start += numFrames;
-            }
-            return jData;
-        } */
 
-        //Second iteration of runDTW.
-        //this one will instead return an array containing DTW information for each joint (this is to save memory and lines of code later)
-        //startFrame is global [i planned to make it static, but can't be bothered right now] so that we can keep track of which frame we're at
-        //haven't tried this one out yet, so i dont know if it'll work. It's just a concept idea for now
+        //Multiple versions of the dynamic time warping.  Through multiple tests, we decided to use the 3rd version
         private ArrayList runDTW()
         {
             int numFrames = 30;
@@ -377,41 +353,34 @@ namespace VirtualSifu
 
                                     ArrayList dtwData = new ArrayList();
                                    
-
-                                    if (1 == 1)
+                                    if (playbackFrameNumber != 0 && playbackFrameNumber  % 30 == 0)
                                     {
-                                        //something might go here
-                                        if (playbackFrameNumber != 0 && playbackFrameNumber  % 30 == 0)
-                                        {
-                                            //run DTW for each joint
+                                        //run DTW for each joint
 
-                                             dtwData = runDTW3();
-                                            Console.Write((double)dtwData[0] + "\n");
-                                            colorJoint(ankleRight, (double)dtwData[0]);
-                                            colorJoint(ankleLeft, (double)dtwData[1]);
-                                            colorJoint(kneeRight, (double)dtwData[2]);
-                                            colorJoint(kneeLeft, (double)dtwData[3]);
-                                            colorJoint(hipRight, (double)dtwData[4]);
-                                            colorJoint(hipLeft, (double)dtwData[5]);
-                                            colorJoint(shoulderRight, (double)dtwData[6]);
-                                            colorJoint(shoulderLeft, (double)dtwData[7]);
-                                            colorJoint(elbowRight, (double)dtwData[8]);
-                                            colorJoint(elbowLeft, (double)dtwData[9]);
-                                            colorJoint(wristRight, (double)dtwData[10]);
-                                            colorJoint(wristLeft, (double)dtwData[11]);
+                                        dtwData = runDTW3();
+                                        Console.Write((double)dtwData[0] + "\n");
+                                        colorJoint(ankleRight, (double)dtwData[0]);
+                                        colorJoint(ankleLeft, (double)dtwData[1]);
+                                        colorJoint(kneeRight, (double)dtwData[2]);
+                                        colorJoint(kneeLeft, (double)dtwData[3]);
+                                        colorJoint(hipRight, (double)dtwData[4]);
+                                        colorJoint(hipLeft, (double)dtwData[5]);
+                                        colorJoint(shoulderRight, (double)dtwData[6]);
+                                        colorJoint(shoulderLeft, (double)dtwData[7]);
+                                        colorJoint(elbowRight, (double)dtwData[8]);
+                                        colorJoint(elbowLeft, (double)dtwData[9]);
+                                        colorJoint(wristRight, (double)dtwData[10]);
+                                        colorJoint(wristLeft, (double)dtwData[11]);
 
-                                                //colorJoint(ellipse, random.Next(0, 4));
-                                            //Probably can do this part like Gina's
-                                            //Get a joint list that you want calculated
-                                            //perform runDTW on each individual joint
-                                            //then do your coloring/drawing for it.
-
-
-                                        }
+                                            //colorJoint(ellipse, random.Next(0, 4));
+                                        //Probably can do this part like Gina's
+                                        //Get a joint list that you want calculated
+                                        //perform runDTW on each individual joint
+                                        //then do your coloring/drawing for it.
 
                                     }
 
-
+                                    
                                     ScalePosition(wristRight, skeleton.Joints[JointType.WristRight]);
                                     ScalePosition(wristLeft, skeleton.Joints[JointType.WristLeft]);
                                     ScalePosition(elbowRight, skeleton.Joints[JointType.ElbowRight]);
@@ -553,11 +522,7 @@ namespace VirtualSifu
                     writer = new StreamWriter(FileText.Text + ".txt");
                     dataStream = new FileStream(FileText.Text + ".dat", FileMode.Create);
                     
-
                     //masterData = new StreamFileReader(FileText.Text + ".txt");
-
-
-
 
                     // swap image to stop.png
                     BitmapImage bitmap = new BitmapImage();
@@ -621,16 +586,6 @@ namespace VirtualSifu
         {
 
         }
-
-        //private void Start_Click(object sender, RoutedEventArgs e)
-        //{
-        //    totalCounted = 0;
-        //    totalCorrespondence = 0;
-        //    startFrame = 0;
-        //    playback = true;
-        //    masterData = new StreamFileReader(FileText.Text + ".txt");
-        //    dataStream = new FileStream(FileText.Text + ".dat", FileMode.Open, FileAccess.Read);
-        //}
 
         Skeleton GetFirstSkeleton(AllFramesReadyEventArgs e)
         {
@@ -837,82 +792,6 @@ namespace VirtualSifu
             }
 
         }
-
-       /* private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            //Creating new Folder Browsing
-            FolderBrowserDialog folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            DialogResult result;
-            String folderName = Directory.GetCurrentDirectory();
-
-            //If no filepath is selected .. (and our combobox has no data) then force them to pick a folder
-            while (folderName.Equals(""))
-            {           
-                //This brings up the actual browsing window
-                result = folderBrowserDialog1.ShowDialog();
-               //this takes the selected folderpath
-                folderName = folderBrowserDialog1.SelectedPath;
-                //If our combobox already has data, user may have accidentally clicked browse
-                if (!mDataComboBox.Items.IsEmpty && folderName.Equals(""))
-                    return;
-            }
-
-            //Gets the files within the selected directory
-            String[] filePaths = Directory.GetFiles(@folderName);
-
-            //arraylist to hold filenames
-            ArrayList fileNames = new ArrayList();
-
-            //stripping our filepaths to get only filenames
-            foreach (String s in filePaths)
-            {
-                String[] split = s.Split('\\');
-                fileNames.Add(split[split.Length-1]);
-            }
-
-            //getting the actual filenames individually and adding them to a list -- no repeats
-            ArrayList indNames = new ArrayList();
-            foreach (String s in fileNames)
-            {
-                String[] split = s.Split('.');
-                if (!indNames.Contains(split[0]))
-                {
-                    indNames.Add(split[0]);
-                }
-            }
-
-            //check each file to see if a .dat and a .txt exist for it
-            //if so, add it to our dropdown box, if not. hah
-            ArrayList filesToAdd = new ArrayList();
-            foreach (String s in indNames)
-            {
-                String v1 = s + ".dat";
-                String v2 = s + ".txt";
-                if (fileNames.Contains(v1) && fileNames.Contains(v2))
-                {
-                    filesToAdd.Add(s);
-                }
-                //NOTE: mDataComboBox.SelectedValue gets currently selected ComboBox value
-            }
-
-            //added a check to actually kill off one of my own bugs.. however im leaving some exception checking code just in case someone circumvents it
-            if (filesToAdd.Count > 0)
-            {
-                //Clear out any pre-existing files -- or should we do this a different way?
-                mDataComboBox.Items.Clear();
-                foreach (String s in filesToAdd)
-                {
-                    mDataComboBox.Items.Add(s);
-                }
-            }
-            else
-            {
-                //supposing user selects a directory with no usable data, we will automatically revert back to previous files.
-                DialogResult e1 = System.Windows.Forms.MessageBox.Show("Selected directory has no master data files.\nReverting to previous directory.", "No Master Data Available");
-            }
-
-        } */
-
 
         private void refreshDropdown()
         {
